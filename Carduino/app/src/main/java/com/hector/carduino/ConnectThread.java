@@ -9,6 +9,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Gestiona la conexión Bluetooth con el vehículo
@@ -76,14 +77,35 @@ public class ConnectThread extends Thread {
         }
     }
 
+    public void setConfig(Settings settings) throws InterruptedException {
+        if(settings.is_useDefault())
+            send(Command.USE_DEFAULT_CONFIG);
+        else {
+            toParam(settings.is_autoLights(), Command.AUTO_LIGHTS_ON, Command.AUTO_LIGHTS_OFF, settings.get_autoLightsPitch());
+            toParam(settings.is_autoStop(), Command.AUTO_STOP_ON, Command.AUTO_STOP_OFF, settings.get_autoStopDistance());
+            toParam(settings.is_autoVent(), Command.AUTO_VENT_ON, Command.AUTO_VENT_OFF, settings.get_autoVentTemp());
+        }
+    }
+
+    public void toParam(boolean b, char cmdTrue, char cmdFalse, int value) throws InterruptedException {
+        if(b) {
+            send(cmdTrue);
+            Thread.sleep(100);
+            sendParameter(value, cmdTrue);
+        } else {
+            send(cmdFalse);
+        }
+        Thread.sleep(300);
+    }
+
     /**
      * Envia un comando para iniciar la parametrización y
      * acto seguido enía el comando con el parámetro
      */
-    public void sendParameter() {
+    public void sendParameter(int n, char cmd) {
         try {
             mmSocket.getOutputStream().write(Command.ACTIVATE_PARAMETRIZE);
-            mmSocket.getOutputStream().write(Command.formatParameter(23, Command.AUTO_LIGHTS_ON).getBytes());
+            mmSocket.getOutputStream().write(Command.formatParameter(n, cmd).getBytes());
         } catch (IOException e) { }
     }
 
@@ -132,7 +154,6 @@ public class ConnectThread extends Thread {
     public static void detectBluetooth(Context context) {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
-            //TODO: HACER STRINGS
             Toast.makeText(context, R.string.error_no_bt, Toast.LENGTH_LONG).show();
         } else {
             if (!mBluetoothAdapter.isEnabled()) {

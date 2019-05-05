@@ -3,12 +3,15 @@ package com.hector.carduino;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.io.Serializable;
+
 /**
  * Gestiona las preferencias de la aplicación y del vehículo
  */
-public class Settings {
+public class Settings implements Serializable {
 
-    private boolean _autoLights, // Luces automáticas
+    private boolean _useDefault, // Configuración por defecto
+                    _autoLights, // Luces automáticas
                     _autoStop, // Parada automática
                     _autoVent, // Ventilación automática
                     _notifCarOn, // Notificar encendido del vehículo
@@ -28,6 +31,7 @@ public class Settings {
 
     /**
      * Constructor sobrecargado
+     * @param _useDefault
      * @param _autoLights
      * @param _autoStop
      * @param _autoVent
@@ -42,7 +46,8 @@ public class Settings {
      * @param _autoVentTemp
      * @param _carName
      */
-    public Settings(boolean _autoLights, boolean _autoStop, boolean _autoVent, boolean _notifCarOn, boolean _notifCarParked, boolean _notifLowBattery, boolean _phoneVibeOn, boolean _accelerometerOn, boolean _gyroscopeOn, int _autoLightsPitch, int _autoStopDistance, int _autoVentTemp, String _carName) {
+    public Settings(boolean _useDefault, boolean _autoLights, boolean _autoStop, boolean _autoVent, boolean _notifCarOn, boolean _notifCarParked, boolean _notifLowBattery, boolean _phoneVibeOn, boolean _accelerometerOn, boolean _gyroscopeOn, int _autoLightsPitch, int _autoStopDistance, int _autoVentTemp, String _carName) {
+        this._useDefault = _useDefault;
         this._autoLights = _autoLights;
         this._autoStop = _autoStop;
         this._autoVent = _autoVent;
@@ -62,6 +67,7 @@ public class Settings {
      * Constructor por defecto
      */
     public Settings() {
+        this._useDefault = true;
         this._autoLights = true;
         this._autoStop = true;
         this._autoVent = true;
@@ -85,6 +91,7 @@ public class Settings {
         SharedPreferences sharedPreferences = context.getSharedPreferences("CarduinoPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor edt = sharedPreferences.edit();
 
+        edt.putBoolean("_useDefault", _useDefault);
         edt.putBoolean("_autoLights", _autoLights);
         edt.putBoolean("_autoStop", _autoStop);
         edt.putBoolean("_autoVent", _autoVent);
@@ -110,6 +117,7 @@ public class Settings {
         new Settings();
         SharedPreferences sharedPreferences = context.getSharedPreferences("CarduinoPrefs", Context.MODE_PRIVATE);
 
+        this._autoLights = sharedPreferences.getBoolean("_useDefault", _useDefault);
         this._autoLights = sharedPreferences.getBoolean("_autoLights", _autoLights);
         this._autoStop = sharedPreferences.getBoolean("_autoStop", _autoStop);
         this._autoVent = sharedPreferences.getBoolean("_autoVent", _autoVent);
@@ -139,6 +147,14 @@ public class Settings {
 
     public void set_autoStop(boolean _autoStop) {
         this._autoStop = _autoStop;
+    }
+
+    public boolean is_useDefault() {
+        return _useDefault;
+    }
+
+    public void set_useDefault(boolean _useDefault) {
+        this._useDefault = _useDefault;
     }
 
     public boolean is_autoVent() {

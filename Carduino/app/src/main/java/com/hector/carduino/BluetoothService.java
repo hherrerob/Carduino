@@ -72,7 +72,10 @@ public class BluetoothService extends Service {
                         }
                     break;
                 case SEND_PARAM:
-                        connectThread.sendParameter();
+                        Settings settings = (Settings) msg.obj;
+                        try {
+                            connectThread.setConfig(settings);
+                        } catch (InterruptedException e) { }
                     break;
                 case RESTART:
                     connectThread.cancel();

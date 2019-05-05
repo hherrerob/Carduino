@@ -120,7 +120,7 @@ public class DriveActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //TODO: Enviar comando
-                connectThread.sendParameter();
+                //connectThread.sendParameter();
             }
         });
 

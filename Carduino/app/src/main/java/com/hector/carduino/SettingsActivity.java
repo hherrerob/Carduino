@@ -4,14 +4,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -26,6 +28,7 @@ public class SettingsActivity extends AppCompatActivity {
     private TextView sbPitchTxt, sbDistTxt;
     private EditText carName;
     private FloatingActionButton backButton;
+    private ImageView sendButton;
 
     private Settings settings;
 
@@ -66,10 +69,24 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+        this.sendButton = findViewById(R.id.SEND);
+        this.sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gatherSettings();
+                settings.savePrefs(SettingsActivity.this);
+
+                Message msg = Message.obtain(null, BluetoothService.SEND_PARAM, settings);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
+            }
+        });
+
         this.carName = findViewById(R.id.CAR_NAME);
         this.carName.setText(settings.get_carName().toString());
 
-        this.switchSettings = new Switch[8];
+        this.switchSettings = new Switch[9];
         this.switchSettings[0] = findViewById(R.id.HP_LIGHTS);
         this.switchSettings[0].setChecked(settings.is_autoLights());
         this.switchSettings[1] = findViewById(R.id.CRASH_DETECT);
@@ -86,6 +103,8 @@ public class SettingsActivity extends AppCompatActivity {
         this.switchSettings[6].setChecked(settings.is_accelerometerOn());
         this.switchSettings[7] = findViewById(R.id.GYROSCOPE);
         this.switchSettings[7].setChecked(settings.is_gyroscopeOn());
+        this.switchSettings[8] = findViewById(R.id.DEFAULT);
+        this.switchSettings[8].setChecked(settings.is_useDefault());
 
         this.sbPitch = findViewById(R.id.SB_PITCH);
         this.sbPitch.setProgress(settings.get_autoLightsPitch() -100);
@@ -143,6 +162,7 @@ public class SettingsActivity extends AppCompatActivity {
         this.settings.set_phoneVibeOn(this.switchSettings[5].isChecked());
         this.settings.set_accelerometerOn(this.switchSettings[6].isChecked());
         this.settings.set_gyroscopeOn(this.switchSettings[7].isChecked());
+        this.settings.set_useDefault(this.switchSettings[8].isChecked());
         this.settings.set_autoLightsPitch(this.sbPitch.getProgress() +10);
         this.settings.set_autoStopDistance(this.sbDistance.getProgress() +100);
         this.settings.set_carName(this.carName.getText().toString());

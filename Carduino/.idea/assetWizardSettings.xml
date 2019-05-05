@@ -35,7 +35,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_chevron_left_black_24dp.xml" />
+                                                <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/communication/ic_call_made_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -57,9 +57,10 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundColor" value="000000" />
+                                      <entry key="foregroundAssetType" value="CLIP_ART" />
                                       <entry key="foregroundImage" value="C:\Users\Hector\Desktop\Assets\pb2.png" />
                                       <entry key="legacyIconShape" value="CIRCLE" />
-                                      <entry key="outputName" value="ic_pb_on" />
+                                      <entry key="outputName" value="ic_send" />
                                     </map>
                                   </option>
                                 </PersistentState>

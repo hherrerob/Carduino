@@ -64,11 +64,11 @@ int command[] = {
 //                1                   2           3                 4                  5                6           7            8
     (int) motorSpeedHandler, (int) setLock, (int) blinker, (int) posLightsToggle, (int) brake, (int) setAutoVent, (int) NONE, (int) gearShift, // 1
     (int) motorSpeedHandler, (int) setLock, (int) blinker, (int) posLightsToggle, (int) buzzer, (int) setAutoVent, (int) NONE, (int) gearShift, // 2
-    (int) motorSpeedHandler, (int) setLights, (int) blinker, (int) frontLightsToggle, (int) turn, (int) NONE, (int) NONE, (int) gearShift, // 3
-    (int) motorSpeedHandler, (int) setLights, (int) blinker, (int) frontLightsToggle, (int) turn, (int) NONE, (int) NONE, (int) gearShift, // 4
+    (int) motorSpeedHandler, (int) setLights, (int) blinker, (int) frontLightsToggle, (int) turn, (int) setVent, (int) NONE, (int) gearShift, // 3
+    (int) motorSpeedHandler, (int) setLights, (int) blinker, (int) frontLightsToggle, (int) turn, (int) setVent, (int) NONE, (int) gearShift, // 4
     (int) motorSpeedHandler, (int) setAutoStop, (int) emLight, (int) activateParametrize, (int) NONE, (int) NONE, (int) NONE, (int) NONE, // 5
     (int) motorSpeedHandler, (int) setAutoStop, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, // 6
-    (int) frontLightFlash, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, // 7
+    (int) frontLightFlash, (int) defaultConfig, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, // 7
     (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE  // 8
 //        1           2           3           4           5           6           7           8
 };
@@ -198,6 +198,16 @@ void allOff() {
   digitalWrite(BLR, LOW);
 }
 
+// CAMBIA LA CONFIGURACIÓN ACTUAL POR LOS VALORES POR DEFECTO
+void defaultConfig() {
+  _autoLights = false;
+  _lightsSensorPitch = 700;
+  _autoStop = false;
+  _stopSensorDistance = 10;
+  _autoVent = false;
+  _autoVentPitch = 24;
+}
+
 // ACTIVA/DESACTIVA LAS LUCES AUTOMATICAS
 void setLights() {
   if(cmd == 'H')
@@ -212,11 +222,18 @@ void setAutoStop() {
   else _autoStop = false;
 }
 
-// ACTIVA/DESACTIVA LA VENTILACION
+// ACTIVA/DESACTIVA LA VENTILACION AUTOMÁTICA
 void setAutoVent() {
   if(cmd == 'F')
     _autoVent = true;
   else _autoVent = false;
+}
+
+// ACTIVA/DESACTIVA LA VENTILACION
+void setVent() {
+  if(cmd == 'V')
+    _VENT = true;
+  else _VENT = false;
 }
 
 // CAMBIO DE VELOCIDAD
@@ -531,9 +548,10 @@ void getTemp() {
 
 // ACTIVA/DESACTIVA LA VENTILACIÓN AUTOMATICAMNTE
 void autoVent() {
-  if(_TEMPERATURE > _autoVentPitch)
+  if(_TEMPERATURE > _autoVentPitch) {
+    _VENT = true;
     VentMotor.setSpeed(255);
-  else if(!_VENT)
+  } else if(!_VENT)
     VentMotor.setSpeed(0);
 }
 

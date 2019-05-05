@@ -290,7 +290,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_weight="1"
                     android:scaleType="fitStart"
-                    app:srcCompat="@mipmap/ic_location_off_foreground" />
+                    app:srcCompat="@mipmap/ic_location_on_foreground" />
 
                 <TextView
                     android:id="@+id/textView3"

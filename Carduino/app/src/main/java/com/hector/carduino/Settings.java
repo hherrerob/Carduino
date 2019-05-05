@@ -25,6 +25,9 @@ public class Settings implements Serializable {
                 _autoStopDistance, // Distancia a la que se detecta un obstaculo
                 _autoVentTemp; // Temperatura para activar la ventilación
 
+    private float  _lastLat, // Última latitud conocida
+                    _lastLong; // Última longitud conocida
+
     private String _carName; // Nombre del vehículo
 
     // #TODO: IMPORT/EXPORT
@@ -45,8 +48,10 @@ public class Settings implements Serializable {
      * @param _autoStopDistance
      * @param _autoVentTemp
      * @param _carName
+     * @param _lastLat
+     * @param _lastLong
      */
-    public Settings(boolean _useDefault, boolean _autoLights, boolean _autoStop, boolean _autoVent, boolean _notifCarOn, boolean _notifCarParked, boolean _notifLowBattery, boolean _phoneVibeOn, boolean _accelerometerOn, boolean _gyroscopeOn, int _autoLightsPitch, int _autoStopDistance, int _autoVentTemp, String _carName) {
+    public Settings(boolean _useDefault, boolean _autoLights, boolean _autoStop, boolean _autoVent, boolean _notifCarOn, boolean _notifCarParked, boolean _notifLowBattery, boolean _phoneVibeOn, boolean _accelerometerOn, boolean _gyroscopeOn, int _autoLightsPitch, int _autoStopDistance, int _autoVentTemp, String _carName, float _lastLat, float _lastLong) {
         this._useDefault = _useDefault;
         this._autoLights = _autoLights;
         this._autoStop = _autoStop;
@@ -61,6 +66,8 @@ public class Settings implements Serializable {
         this._autoStopDistance = _autoStopDistance;
         this._autoVentTemp = _autoVentTemp;
         this._carName = _carName;
+        this._lastLat = _lastLat;
+        this._lastLong = _lastLong;
     }
 
     /**
@@ -81,6 +88,8 @@ public class Settings implements Serializable {
         this._autoStopDistance = 10;
         this._autoVentTemp = 24;
         this._carName = "Unknown";
+        this._lastLat = 0;
+        this._lastLong = 0;
     }
 
     /**
@@ -105,6 +114,8 @@ public class Settings implements Serializable {
         edt.putInt("_autoStopDistance", _autoStopDistance);
         edt.putInt("_autoVentTemp", _autoVentTemp);
         edt.putString("_carName", _carName);
+        edt.putFloat("_lastLat", _lastLat);
+        edt.putFloat("_lastLong", _lastLong);
 
         edt.commit();
     }
@@ -131,6 +142,8 @@ public class Settings implements Serializable {
         this._autoStopDistance = sharedPreferences.getInt("_autoStopDistance", _autoStopDistance);
         this._autoVentTemp = sharedPreferences.getInt("_autoVentTemp", _autoVentTemp);
         this._carName = sharedPreferences.getString("_carName", _carName);
+        this._lastLat = sharedPreferences.getFloat("_lastLat", _lastLat);
+        this._lastLong = sharedPreferences.getFloat("_lastLong", _lastLong);
     }
 
     public boolean is_autoLights() {
@@ -239,6 +252,22 @@ public class Settings implements Serializable {
 
     public String get_carName() {
         return _carName;
+    }
+
+    public float get_lastLat() {
+        return _lastLat;
+    }
+
+    public void set_lastLat(float _lastLat) {
+        this._lastLat = _lastLat;
+    }
+
+    public float get_lastLong() {
+        return _lastLong;
+    }
+
+    public void set_lastLong(float _lastLong) {
+        this._lastLong = _lastLong;
     }
 
     public void set_carName(String _carName) {

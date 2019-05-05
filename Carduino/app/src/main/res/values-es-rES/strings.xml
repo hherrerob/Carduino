@@ -47,4 +47,7 @@
     <string name="error_car_off">Asegurate de que el coche está encendido</string>
     <string name="error_no_bt">Tu dispositivo no es compatible con Bluetooth</string>
     <string name="error_bt_turn_on">Se ha activa el Bluetooth</string>
+    <string name="map_yah">Estás aquí</string>
+    <string name="map_error_permission">No se ha permitido el acceso a la localización</string>
+    <string name="map_unk">Desconocida</string>
 </resources>

@@ -50,4 +50,7 @@
     <string name="error_car_off">Make sure the car is on</string>
     <string name="error_no_bt">Your device is not Bluetooth compatible</string>
     <string name="error_bt_turn_on">Bluetooth has been activated</string>
+    <string name="map_yah">You are here</string>
+    <string name="map_error_permission">The app was not allowed to access your location</string>
+    <string name="map_unk">Unknown</string>
 </resources>

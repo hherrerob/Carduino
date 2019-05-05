@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton refresh, settings;
     private LinearLayout climateOption, driveOption, controlsOption, locationOption, summonOption;
     private RelativeLayout isConnected;
+    private Boolean _isConnected;
     private SwitchIconView lock, vent;
     private TextView carName;
 
@@ -142,7 +143,9 @@ public class MainActivity extends AppCompatActivity {
         this.locationOption.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: LocationActivity
+                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                intent.putExtra("isConnected", _isConnected);
+                startActivity(intent);
             }
         });
 
@@ -192,8 +195,10 @@ public class MainActivity extends AppCompatActivity {
         if(connected) {
             this.currentStatus = currentStatus;
             this.isConnected.setBackgroundResource(R.drawable.circle_green);
+            this._isConnected = true;
         } else {
             this.isConnected.setBackgroundResource(R.drawable.circle_red);
+            this._isConnected = false;
         }
 
         //TODO: COMPLETAR

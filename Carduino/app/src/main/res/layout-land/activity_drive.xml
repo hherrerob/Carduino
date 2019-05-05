@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DriveActivity">
+
+    <TextView
+        android:id="@+id/MESSAGE"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/abel"
+        android:text="Cruise control has been engaged."
+        android:textAlignment="center"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/SPEED"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/DASHBOARD"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="0dp"
+        android:layout_marginBottom="-14dp"
+        android:fontFamily="@font/righteous"
+        android:text="0"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="30sp"
+        android:textStyle="bold|italic" />
+
+    <LinearLayout
+        android:id="@+id/DASHBOARD"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/POSITION_LIGHTS"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            app:srcCompat="@mipmap/ic_lb_off_foreground" />
+
+        <ImageView
+            android:id="@+id/FROST"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_weight="1"
+            android:clickable="true"
+            app:srcCompat="@mipmap/ic_frost_off_foreground" />
+
+        <ImageView
+            android:id="@+id/EMERGENCY_LIGHT"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            app:srcCompat="@mipmap/ic_eml_off_foreground" />
+
+        <ImageView
+            android:id="@+id/PARKING"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_weight="1"
+            android:clickable="true"
+            app:srcCompat="@mipmap/ic_pb_off_foreground" />
+
+        <ImageView
+            android:id="@+id/HEADLIGHTS"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            app:srcCompat="@mipmap/ic_hl_off_foreground" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/CONTROL_PANEL"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@+id/DASHBOARD"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="-3dp"
+        android:layout_marginBottom="3dp"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:id="@+id/LEFT_PANEL"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/BRAKE"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/ACCELERATOR"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="10dp"
+                android:clickable="true"
+                app:backgroundTint="@color/colorPrimary"
+                app:srcCompat="@mipmap/ic_brake_foreground" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/REFRESH"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:clickable="true"
+                app:backgroundTint="@color/colorPrimary"
+                app:srcCompat="@android:drawable/ic_menu_rotate" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/FLASH"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/ACCELERATOR"
+                android:layout_margin="10dp"
+                android:clickable="true"
+                app:backgroundTint="@color/colorPrimary"
+                app:srcCompat="@mipmap/ic_flash_foreground" />
+
+            <com.rm.rmswitch.RMSwitch
+                android:id="@+id/LEFT_BLINKER"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:rotation="180"
+                app:checked="false"
+                app:enabled="true"
+                app:forceAspectRatio="false"
+                app:switchBkgCheckedColor="@color/colorPrimary"
+                app:switchBkgNotCheckedColor="@color/colorPrimary"
+                app:switchDesign="android"
+                app:switchToggleCheckedColor="@color/yellow"
+                app:switchToggleCheckedImage="@mipmap/ic_blinker_right_foreground"
+                app:switchToggleNotCheckedColor="@color/colorPrimary"
+                app:switchToggleNotCheckedImage="@mipmap/ic_blinker_right_foreground" />
+
+            <com.github.channguyen.rsv.RangeSliderView
+                android:id="@+id/ACCELERATOR"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_margin="10dp"
+                android:rotation="270"
+                app:emptyColor="@color/colorPrimary"
+                app:filledColor="@color/blue"
+                app:rangeCount="6" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/CENTER_PANEL"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/STEERING_WHEEL"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:rotation="0"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/volante" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/RIGHT_PANEL"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/RIGHT_PANEL_CONTAINER"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <com.rm.rmswitch.RMSwitch
+                    android:id="@+id/RIGHT_BLINKER"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    app:checked="false"
+                    app:enabled="true"
+                    app:forceAspectRatio="false"
+                    app:switchBkgCheckedColor="@color/colorPrimary"
+                    app:switchBkgNotCheckedColor="@color/colorPrimary"
+                    app:switchDesign="android"
+                    app:switchToggleCheckedColor="@color/yellow"
+                    app:switchToggleCheckedImage="@mipmap/ic_blinker_right_foreground"
+                    app:switchToggleNotCheckedColor="@color/colorPrimary"
+                    app:switchToggleNotCheckedImage="@mipmap/ic_blinker_right_foreground" />
+
+                <com.github.channguyen.rsv.RangeSliderView
+                    android:id="@+id/SHIFT"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/PRND"
+                    android:layout_alignParentStart="true"
+                    app:emptyColor="@color/colorPrimary"
+                    app:filledColor="@color/blue"
+                    app:rangeCount="4" />
+
+                <ImageView
+                    android:id="@+id/CRUISE_CONTROL"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/SHIFT"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="0dp"
+                    android:layout_weight="1"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@mipmap/ic_cl_off_foreground" />
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/BUZZER"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_margin="10dp"
+                    android:clickable="true"
+                    app:backgroundTint="@color/colorPrimary"
+                    app:srcCompat="@mipmap/ic_horn_foreground" />
+
+                <LinearLayout
+                    android:id="@+id/PRND"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentBottom="true"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/P"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/abeezee"
+                        android:text="P"
+                        android:textAlignment="center"
+                        android:textColor="@color/def_pointer_color"
+                        android:textSize="30sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/R"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/abeezee"
+                        android:text="R"
+                        android:textAlignment="center"
+                        android:textColor="@color/def_pointer_color"
+                        android:textSize="30sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/N"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/abeezee"
+                        android:text="N"
+                        android:textAlignment="center"
+                        android:textColor="@color/def_pointer_color"
+                        android:textSize="30sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/D"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/abeezee"
+                        android:text="D"
+                        android:textAlignment="center"
+                        android:textColor="@color/def_pointer_color"
+                        android:textSize="30sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

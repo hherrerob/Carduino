@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
     private static final int REQUEST = 112;
@@ -35,6 +36,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private TextView address, state, country;
     private FloatingActionButton backButton;
+    private Status currentStatus;
+    private Settings settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,37 +69,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.silver_map));
-
         set();
     }
 
     public void set() {
+        this.settings = new Settings();
+        this.settings.getPrefs(MapsActivity.this);
         this.address = findViewById(R.id.DIRECCION);
         this.state = findViewById(R.id.STATE);
         this.country = findViewById(R.id.PAIS);
 
         boolean isConnected = getIntent().getExtras().getBoolean("isConnected");
+        this.currentStatus = (Status) getIntent().getExtras().getSerializable("currentStatus");
 
         if(isConnected) {
             // Comprobar permisos
-            if (Build.VERSION.SDK_INT >= 23) {
-                String[] PERMISSIONS = {android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION};
-                if (!hasPermissions(this, PERMISSIONS)) {
-                    ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST);
+            if(settings.is_usePhoneLoc()) {
+                if (Build.VERSION.SDK_INT >= 23) {
+                    String[] PERMISSIONS = {android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION};
+                    if (!hasPermissions(this, PERMISSIONS)) {
+                        ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST);
+                    } else {
+                        getLocation();
+                    }
                 } else {
                     getLocation();
                 }
             } else {
-                getLocation();
+                double lat = currentStatus.get_lat();
+                double lon = currentStatus.get_lon();
+
+                if(lat != 0 && lon != 0) {
+                    saveLocation(lat, lon);
+                    setLocation(lat, lon);
+                } else {
+                    useSavedLoc();
+                }
             }
         } else {
-            Settings settings = new Settings();
-            settings.getPrefs(this);
-            try {
-                setLocation((double) settings.get_lastLat(), (double) settings.get_lastLong());
-            } catch (NullPointerException e) {
-            } catch (IndexOutOfBoundsException e) { }
+            useSavedLoc();
         }
+    }
+
+    public void useSavedLoc() {
+        settings.getPrefs(this);
+        try {
+            setLocation((double) settings.get_lastLat(), (double) settings.get_lastLong());
+        } catch (NullPointerException e) {
+        } catch (IndexOutOfBoundsException e) { }
     }
 
     @Override
@@ -128,28 +148,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         @SuppressLint("MissingPermission")
         Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        try {
+            double longitude = location.getLongitude();
+            double latitude = location.getLatitude();
 
-        double longitude = location.getLongitude();
-        double latitude = location.getLatitude();
+            saveLocation(latitude, longitude);
 
-        Settings settings = new Settings();
-        settings.getPrefs(this);
-        settings.set_lastLat((float) latitude);
-        settings.set_lastLong((float) longitude);
-        settings.savePrefs(this);
+            setLocation(latitude, longitude);
+        } catch (NullPointerException e) {
+            Toast.makeText(MapsActivity.this, getString(R.string.error_loc_off), Toast.LENGTH_LONG).show();
+            useSavedLoc();
+        }
+    }
 
-        setLocation(latitude, longitude);
+    public void saveLocation(double latitude, double longitude) {
+        this.settings = new Settings();
+        this.settings.getPrefs(this);
+        this.settings.set_lastLat((float) latitude);
+        this.settings.set_lastLong((float) longitude);
+        this.settings.savePrefs(this);
     }
 
     public void setLocation(double latitude, double longitude) {
         LatLng position = new LatLng(latitude, longitude);
         if(latitude != 0 && longitude != 0) {
             mMap.addMarker(new MarkerOptions().position(position).title(getString(R.string.map_yah)));
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 5.0f));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15.0f));
+            try {
+                getAddress(latitude, longitude);
+            } catch (IOException e) { }
         }
-        try {
-            getAddress(latitude, longitude);
-        } catch (IOException e) { }
     }
 
     public void getAddress(double latitude, double longitude) throws IOException {

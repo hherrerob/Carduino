@@ -31,6 +31,7 @@ public class StatusTracker extends Thread {
         while(true) {
             try {
                 String reading = connectThread.readBT();
+                System.out.println("BTREADING: " + reading);
                 _status = new Status(reading);
                 _status.writeToFile(context);
                 lastUpdate = System.currentTimeMillis();

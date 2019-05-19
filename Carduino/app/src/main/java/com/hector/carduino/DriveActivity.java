@@ -1,7 +1,15 @@
 package com.hector.carduino;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,13 +27,25 @@ public class DriveActivity extends AppCompatActivity {
 
     private FloatingActionButton brake, buzzer, flash, refresh;
     private ImageView positionLights, headLights, emergencyLights, parkingSign, frostSign, cruiseControl, steeringWheel;
-    public TextView messageDisplay, speedDisplay;
+    public TextView speedDisplay;
     private RMSwitch leftBlinker, rightBlinker;
     private RangeSliderView gearShift, speedControl;
 
-    private ConnectThread connectThread;
-    public StatusTracker statusTracker;
-    private MessageTracker messageTracker;
+    private Status currentStatus;
+    private FeedbackTracker feedbackTracker;
+    private boolean isConnected;
+
+    private Messenger messageSender;
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            messageSender = new Messenger(service);
+            feedbackTracker = new FeedbackTracker(messageSender, DriveActivity.this, FeedbackTracker.DRIVE_ACTIVITY);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) { }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,87 +54,96 @@ public class DriveActivity extends AppCompatActivity {
         //TODO: recoger parametros de intent con la configuración
         set();
 
-        this.connectThread = ConnectThread.connect();
-        this.statusTracker = new StatusTracker(connectThread, DriveActivity.this);
-        this.messageTracker = new MessageTracker();
+        bindService(new Intent(this, BluetoothService.class), serviceConnection,
+                Context.BIND_AUTO_CREATE);
     }
 
     /**
      * Instancia los componentes y recursos necesarios para la actividad
      */
     private void set() {
-        /** Activa el freno */
         this.brake = findViewById(R.id.BRAKE);
         this.brake.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                connectThread.send(Command.BRAKE);
+                Message msg = Message.obtain(null, BluetoothService.SEND, Command.BRAKE);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
             }
         });
 
-        /** Realiza un pequeño pitído */
         this.buzzer = findViewById(R.id.BUZZER);
         this.buzzer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                connectThread.send(Command.HONK);
+                Message msg = Message.obtain(null, BluetoothService.SEND, Command.HONK);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
             }
         });
 
-        /** Hace un flash con las luces frontales */
         this.flash = findViewById(R.id.FLASH);
         this.flash.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                connectThread.send(Command.FLASH);
+                Message msg = Message.obtain(null, BluetoothService.SEND, Command.FLASH);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
             }
         });
 
-        /** Recarga la conexión con el vehículo */
         this.refresh = findViewById(R.id.REFRESH);
         this.refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                connectThread.cancel();
-                connectThread = ConnectThread.connect();
-                statusTracker = new StatusTracker(connectThread, DriveActivity.this);
+                Message msg = Message.obtain(null, BluetoothService.RESTART);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
             }
         });
 
-        /** Activa/Desactiva las luces de posición */
         this.positionLights = findViewById(R.id.POSITION_LIGHTS);
         this.positionLights.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                connectThread.send(Command.POSITION_LIGHTS);
+                Message msg = Message.obtain(null, BluetoothService.SEND, Command.POSITION_LIGHTS);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
             }
         });
 
-        /** Activa/Desactiva las luces frontales */
         this.headLights = findViewById(R.id.HEADLIGHTS);
         this.headLights.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                connectThread.send(Command.HEADLIGHTS);
+                Message msg = Message.obtain(null, BluetoothService.SEND, Command.HEADLIGHTS);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
             }
         });
 
-        /** Activa/Desactiva las luces de emergencia */
         this.emergencyLights = findViewById(R.id.EMERGENCY_LIGHT);
         this.emergencyLights.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                connectThread.send(Command.EMERGENCY_LIGHT);
+                Message msg = Message.obtain(null, BluetoothService.SEND, Command.EMERGENCY_LIGHT);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
             }
         });
 
         // Solo indicativos
         this.parkingSign = findViewById(R.id.PARKING);
         this.frostSign = findViewById(R.id.FROST);
-        this.messageDisplay = findViewById(R.id.MESSAGE);
         this.speedDisplay = findViewById(R.id.SPEED);
 
-        /** Activa/Desactiva el control de crucero */
         this.cruiseControl = findViewById(R.id.CRUISE_CONTROL);
         this.cruiseControl.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,9 +165,14 @@ public class DriveActivity extends AppCompatActivity {
                 if(rightBlinker.isChecked())
                     rightBlinker.setChecked(false);
 
+                Message msg;
                 if(leftBlinker.isChecked())
-                    connectThread.send(Command.LEFT_BLINKER_ON);
-                else connectThread.send(Command.LEFT_BLINKER_OFF);
+                    msg = Message.obtain(null, BluetoothService.SEND, Command.LEFT_BLINKER_ON);
+                else msg = Message.obtain(null, BluetoothService.SEND, Command.LEFT_BLINKER_OFF);
+
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
             }
         });
 
@@ -151,9 +185,14 @@ public class DriveActivity extends AppCompatActivity {
                 if(leftBlinker.isChecked())
                     leftBlinker.setChecked(false);
 
-                if(rightBlinker.isChecked())
-                    connectThread.send(Command.RIGHT_BLINKER_ON);
-                else connectThread.send(Command.RIGHT_BLINKER_OFF);
+                Message msg;
+                if(leftBlinker.isChecked())
+                    msg = Message.obtain(null, BluetoothService.SEND, Command.RIGHT_BLINKER_ON);
+                else msg = Message.obtain(null, BluetoothService.SEND, Command.RIGHT_BLINKER_OFF);
+
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
             }
         });
 
@@ -162,7 +201,10 @@ public class DriveActivity extends AppCompatActivity {
         this.gearShift.setOnSlideListener(new RangeSliderView.OnSlideListener() {
             @Override
             public void onSlide(int index) {
-                connectThread.send(Command.GEAR_SHIFT[index]);
+                Message msg = Message.obtain(null, BluetoothService.SEND, Command.GEAR_SHIFT[index]);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
             }
         });
 
@@ -171,43 +213,23 @@ public class DriveActivity extends AppCompatActivity {
         this.speedControl.setOnSlideListener(new RangeSliderView.OnSlideListener() {
             @Override
             public void onSlide(int index) {
-                connectThread.send(Command.SPEED[index]);
+                Message msg = Message.obtain(null, BluetoothService.SEND, Command.SPEED[index]);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
             }
         });
     }
 
-    /**
-     * Cierra la conexión al cerrar la actividad
-     */
-    @Override
-    protected void onDestroy() {
-        connectThread.cancel();
-        super.onDestroy();
-    }
-
-    /**
-     * Cierra la conexión al poner la actividad en segundo plano
-     */
-    @Override
-    protected void onStop() {
-        connectThread.cancel();
-        super.onStop();
-    }
-
-    /**
-     * Reactiva la conexión al reactivar la actividad
-     */
-    @Override
-    protected void onResume() {
-        connectThread = ConnectThread.connect();
-        super.onResume();
-    }
 
     /**
      * Realiza una serie de ajustes en función de el status del coche
      * @param status Estado actual del coche
      */
-    public synchronized void dashBoardHandler(Status status) {
+    public void dashBoardHandler(Status status, boolean connected) {
+        this.currentStatus = status;
+        this.isConnected = connected;
+
         if(status.is_emLightOn())
             emergencyLights.setImageResource(R.mipmap.ic_eml_on_foreground);
         else emergencyLights.setImageResource(R.mipmap.ic_eml_off_foreground);
@@ -224,7 +246,7 @@ public class DriveActivity extends AppCompatActivity {
             positionLights.setImageResource(R.mipmap.ic_lb_on_foreground);
         else positionLights.setImageResource(R.mipmap.ic_lb_off_foreground);
 
-        switch (status.get_turnLightsOn()) {
+        /*switch (status.get_turnLightsOn()) {
             case 0:
                 check(leftBlinker, false);
                 check(rightBlinker, false);
@@ -238,7 +260,7 @@ public class DriveActivity extends AppCompatActivity {
                 check(rightBlinker, true);
                 break;
             default: break;
-        }
+        }*/
     }
 
     /**
@@ -251,39 +273,6 @@ public class DriveActivity extends AppCompatActivity {
     public void check(RMSwitch rmSwitch, boolean value) {
         if(rmSwitch.isChecked() != value) {
             rmSwitch.setChecked(value);
-        }
-    }
-
-    /**
-     * Gestiona elos mensajes recibidos por Bluetooth
-     */
-    private class MessageTracker extends AsyncTask<Void, Void, Void> {
-
-        /**
-         * Llama cada 200ms a la función de lectura del Bluetooth
-         */
-        @Override
-        protected synchronized Void doInBackground(Void... params) {
-            while(true) {
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {};
-
-                publishProgress();
-            }
-        }
-
-        /**
-         * Lee los datos del Bluetooth y se los pasa al handler para que realice las tareas necesarias
-         * @param params
-         */
-        @Override
-        protected synchronized void onProgressUpdate(Void... params) {
-            try {
-                if(statusTracker.get_status() != null && !statusTracker.get_status().getlast().equals(""))
-                    dashBoardHandler(statusTracker.get_status());
-
-            } catch (NullPointerException e) { };
         }
     }
 }

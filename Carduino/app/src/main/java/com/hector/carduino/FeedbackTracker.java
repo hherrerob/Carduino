@@ -9,7 +9,7 @@ import java.io.IOException;
 
 class FeedbackTracker extends Thread {
     public static final int MAIN_ACTIVITY = 1;
-    public static final int SUMMON_ACTIVITY = 2;
+    public static final int CONTROLS_ACTIVITY = 2;
     public static final int DRIVE_ACTIVITY = 3;
 
     public com.hector.carduino.Status currentStatus;
@@ -48,9 +48,9 @@ class FeedbackTracker extends Thread {
             currentStatus = currentStatus.readFromFile(context);
             Boolean connected = false;
             if(currentStatus == null || System.currentTimeMillis() - currentStatus.getLastStatus() > 4000) {
-                Thread.sleep(1500);
+                Thread.sleep(1000);
                 refresh();
-                Thread.sleep(1500);
+                Thread.sleep(2000);
             } else {
                 connected = true;
             }
@@ -65,6 +65,12 @@ class FeedbackTracker extends Thread {
         switch (type) {
             case MAIN_ACTIVITY:
                 ((MainActivity) context).dashboardHandler(currentStatus, connected);
+                break;
+            case DRIVE_ACTIVITY:
+                ((DriveActivity) context).dashBoardHandler(currentStatus, connected);
+                break;
+            case CONTROLS_ACTIVITY:
+                ((ControlsActivity) context).dashBoardHandler(currentStatus);
                 break;
             default:
                 break;

@@ -7,15 +7,6 @@
     tools:context=".DriveActivity">
 
     <TextView
-        android:id="@+id/MESSAGE"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/abel"
-        android:text="Cruise control has been engaged."
-        android:textAlignment="center"
-        android:textColor="@android:color/white" />
-
-    <TextView
         android:id="@+id/SPEED"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

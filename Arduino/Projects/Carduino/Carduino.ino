@@ -1,3 +1,5 @@
+#include <TinyGPS++.h>
+#include <TinyGPS.h>
 #include <TimedAction.h>
 #include <AFMotor.h>
 #include <Servo.h>
@@ -6,13 +8,26 @@
 char _MARCHA = 'P';
 boolean _LOCKED = true;
 int _VELOCIDAD = 1;
-float _TEMPERATURE = 0; // SENSOR DE TEMPERATURA
+double _TEMPERATURE = 0; // SENSOR DE TEMPERATURA
 boolean _VENT = false; // VENTILACION ACTIVADA MANUALMENTE
+int _BATTERY_1 = 100; // PORCENTAJE DE BATERÍA DEL ARDUINO
+int _BATTERY_2 = 100; // PORCENTAJE DE BATERÍA DE LOS MOTORES
+double _LAT = 0.0; // LATITUD
+double _LONG = 0.0; // LONGITUD
+int _SATS = -1; // SATÉLITES CONECTADOS
+double _GPS_SPEED = 0; // VELOCIDAD DEL SATÉLITE
+
 char cmd = '.';
 boolean _PARAMETRIZE = false; // EL SIGUIENTE COMANDO RECIBIDO ES UN PARÁMETRO
-int LDRReading; // SENSOR DE LUZ
-long duration; // ULTRASONIC
-int distance; // ULTRASONIC
+int LDRReading = 0; // SENSOR DE LUZ
+long duration = 0; // ULTRASONIC
+int distance = 0; // ULTRASONIC
+int BAT_1_MAX = 60; // MÁXIMO INPUT DE LA BATERÍA EN REPOSO
+int BAT_1_MIN = 12; // MÍNIMO INPUT DE LA BATERÍA EN REPOSO
+int BAT_2_MAX = 55; // MÁXIMO INPUT DE LA BATERÍA EN REPOSO
+int BAT_2_MIN = 12; // MÍNIMO INPUT DE LA BATERÍA EN REPOSO
+int PBV_1 = 0; // MÁXIMO REGISTRADO
+int PBV_2 = 0; // MÁXIMO REGISTRADO
 
 // SETTINGS
 boolean _autoLights = false; // ACTIVAR LUCES AUTOMATICAMENTE
@@ -20,7 +35,7 @@ int _lightsSensorPitch = 700; // A PARTIR DE
 boolean _autoStop = false; // PARAR EL VEHÍCULO SI DETECTA OBSTACULO
 int _stopSensorDistance = 10; // A PARTIR DE (ESCALABLE)
 boolean _autoVent = false; // ACTIVA LA VENTILACIÓN AUTOMATICAMENTE
-int _autoVentPitch = 24; // SI LA TEMPERATURA ESTA POR ENCIMA DE
+int _autoVentPitch = 25; // SI LA TEMPERATURA ESTA POR ENCIMA DE
 
 // PINS
 int const TLL = 44; // INTERMITENTE IZQUIERDO
@@ -35,9 +50,14 @@ int const TRIGGER = 24; // SENSOR DE ULTRASONIDO
 int const ECHO = 26; // SENSOR DE ULTRASONIDO
 int const _TEMP = 3; // SENSOR DE TEMPERATURA
 int const LDR = 4; // SENSOR DE LUZ
+int const BAT1 = 9; // LECTOR DE BATERIA DEL ARDUINO
+int const BAT2 = 8; // LECTOR DE BATERIA DE LOS MOTORES
+int const GPS_TX = 16; // TRANSMISOR GPS
+int const GPS_RX = 17; // RECEPTOR GPS
 AF_DCMotor DirMotor(2); // MOTOR DE DIRECCIÓN
 AF_DCMotor VentMotor(3); // MOTOR VENTILADOR
 AF_DCMotor TracMotor(4); // MOTOR DE TRACCIÓN
+TinyGPSPlus gps; // OBJETO GPS
 
 // SWITCHES/TRIGGERS
 boolean turnLightsOn = false; // ON/OFF INTERMITENTES
@@ -49,6 +69,7 @@ boolean emStopped = false; // PARADA DE EMERGENCIA
 //TOGGLERS
 boolean turnLightsToggler = false; // INTERMITENTES
 boolean emLightsToggler = false; // LUZ DE EMERGENCIA
+boolean autoStop = false; // PARADA AUTOMÁTICA
 
 // THREADS
 TimedAction turnLightsThread = TimedAction(300, turnLightsBlinker); // INTERMITENTES
@@ -58,6 +79,8 @@ TimedAction autoStopThread = TimedAction(100, crashDetect); // DETECCIÓN DE CHO
 TimedAction autoLightsThread = TimedAction(500, autoLights); // LUCES AUTOMATICAS
 TimedAction dataTrackThread = TimedAction(230, sendData); // ENVIAR DATOS
 TimedAction autoVentThread = TimedAction(2000, autoVent); // ENVIAR DATOS
+TimedAction findBatteryThread = TimedAction(60000, findBattery); // COMPROBAR ESTADO DE BATERÍAS
+TimedAction peakBatteryThread = TimedAction(1000, peakBattery); // COMPROBAR ESTADO DE BATERÍAS
 
 // ARRAY DE COMANDOS
 int command[] = {
@@ -69,7 +92,7 @@ int command[] = {
     (int) motorSpeedHandler, (int) setAutoStop, (int) emLight, (int) activateParametrize, (int) NONE, (int) NONE, (int) NONE, (int) NONE, // 5
     (int) motorSpeedHandler, (int) setAutoStop, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, // 6
     (int) frontLightFlash, (int) defaultConfig, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, // 7
-    (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE  // 8
+    (int) peakBattery, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE  // 8
 //        1           2           3           4           5           6           7           8
 };
 
@@ -96,9 +119,10 @@ void passFunction(void (* functionPointer)()) {
 }
 
 void setup() {
-  Serial1.begin(9600); // BLUETOOTH
   Serial.begin(9600); // ARDUINO
-
+  Serial1.begin(9600); // BLUETOOTH
+  Serial2.begin(9600); // GPS
+  
   // DEFINICIONES
   pinMode(TLL, OUTPUT);
   pinMode(TLR, OUTPUT);
@@ -118,6 +142,9 @@ void setup() {
   frontLightFlash();
   delay(100);
   frontLightFlash();
+  
+  peakBattery();
+  findBattery();
 }
 
 void loop() {
@@ -128,14 +155,26 @@ void loop() {
     Serial.println(cmd);
     execute(cmd);
   }
-
-  
+ 
   checkThreads();
 }
 
 // ENVIA EL ESTADO DEL VEHÍCULO
 void sendData() {
-  String data = "{" + String(_LOCKED) + "," + String(frontLightsOn) + "," + String(posLightsOn) + "," + String(turnLightOn) + "," + String(emLightsOn) + "," + String(emStopped) + "," + String(_MARCHA) + "," + String(_VELOCIDAD) + "," + String(_TEMPERATURE) + "};";
+  String data = String(_LOCKED) + "," + String(frontLightsOn) + ",";
+  data += String(posLightsOn) + "," + String(turnLightOn) + ",";
+  data += String(emLightsOn) + "," + String(emStopped) + ",";
+  data += String(_MARCHA) + "," + String(_VELOCIDAD) + ",";
+  data += String(_TEMPERATURE) + "," + String(_VENT) + ",";
+  data += String(_BATTERY_1) + "," + String(_BATTERY_2) + ",";
+  data += String(_LAT, 6) + "," + String(_LONG, 6) + ",";
+  data += String(_SATS) + "," + String(_GPS_SPEED) + ",";
+  data += String(PBV_1) + "," + String(PBV_2) + ",";
+  data += String(autoStop) + "," + String(LDRReading) + ",";
+  data += String(distance);
+  
+  data = "{" + data + "};";
+  
   Serial1.println(data);
   Serial.println(data);
 }
@@ -239,7 +278,8 @@ void setVent() {
 // CAMBIO DE VELOCIDAD
 void motorSpeedHandler() {
   emStopped = false;
-  
+  autoStop = false;
+
   if(cmd == 'A') {
     runMotor(255);
     _VELOCIDAD = 6;
@@ -264,6 +304,7 @@ void motorSpeedHandler() {
 // CAMBIO DE MARCHA
 void gearShift() {
   emStopped = false;
+  autoStop = false;
   _MARCHA = cmd;
   
   if(_MARCHA == 'P') {
@@ -454,6 +495,7 @@ void crashDetect() {
 void emergencyStop() {
   emLightsOn = false; // VALOR INVERTIDO
   emStopped = true;
+  autoStop = true;
   emLight();
   posLightsOn = false; // VALOR INVERTIDO
   posLightsToggle();
@@ -494,16 +536,72 @@ void checkThreads() {
     emLightThread.check();
   else if(turnLightsOn and !_LOCKED)
     turnLightsThread.check();
-
-  dataTrackThread.check();
+  
   tempThread.check();
   if(_autoStop and !_LOCKED)
     autoStopThread.check();
   if(_autoLights and !_LOCKED)
     autoLightsThread.check();
 
-  if(_autoVent)
-    autoVentThread.check();
+  dataTrackThread.check();
+  autoVentThread.check();
+  peakBatteryThread.check();
+  findBatteryThread.check();
+  gpsCheck();
+}
+
+// ALMACENA LOS VALORES MAS ALTOS RECIBIDOS POR LA PILA
+void peakBattery() {
+  int b1 = analogRead(BAT1);
+  int b2 = analogRead(BAT2);
+  
+  if(b1 <= BAT_1_MAX and b1 > PBV_1)
+    PBV_1 = b1;
+
+   if(b1 <= BAT_2_MAX and b2 > PBV_2)
+    PBV_2 = b2;
+}
+
+// OBTIENE LOS PORCENTAJES DE BATERÍA RESTANTES
+void findBattery() {
+  if(PBV_1 > 0) {
+    _BATTERY_1 = scale(PBV_1, BAT_1_MIN, BAT_1_MAX);
+    if(_BATTERY_1 > 100)
+      _BATTERY_1 = 100;
+    else if(_BATTERY_1 < 0)
+      _BATTERY_1 = 0;
+
+    PBV_1 = 0;
+  }
+
+  if(PBV_2 > 0) {
+    _BATTERY_2 = scale(PBV_2, BAT_2_MIN, BAT_2_MAX);
+    
+    if(_BATTERY_2 > 100)
+      _BATTERY_2 = 100;
+    else if(_BATTERY_2 < 0)
+      _BATTERY_2 = 0;
+
+    PBV_2 = 0;
+  }
+}
+
+// ESCALA UN VALOR ENTRE 0-100
+int scale(double n, double minv, double maxv) {
+  return (int) ((n-minv)/(maxv-minv) * (100));
+}
+
+// COMPRUEBA EL GPS
+void gpsCheck() {
+  if (Serial2.available()) {
+   gps.encode(Serial2.read());
+   if (gps.location.isUpdated()){
+      _LAT = gps.location.lat();
+      _LONG = gps.location.lng();
+      _SATS = gps.satellites.value();
+      _GPS_SPEED = gps.speed.kmph();
+   }
+ }
 }
 
 // HACE 3 FLASHES DE LAS LUCES DE FRENO
@@ -548,11 +646,13 @@ void getTemp() {
 
 // ACTIVA/DESACTIVA LA VENTILACIÓN AUTOMATICAMNTE
 void autoVent() {
-  if(_TEMPERATURE > _autoVentPitch) {
+  if((_TEMPERATURE > _autoVentPitch and _autoVent) or _VENT) {
     _VENT = true;
-    VentMotor.setSpeed(255);
-  } else if(!_VENT)
+    VentMotor.setSpeed(123);
+  } else {
     VentMotor.setSpeed(0);
+    _VENT = false;
+  }
 }
 
 // COMANDO SIN USAR

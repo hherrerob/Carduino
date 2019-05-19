@@ -19,7 +19,8 @@ public class Settings implements Serializable {
                     _notifLowBattery, // Notificar batería baja #TODO: WiP
                     _phoneVibeOn, // Activar vibración
                     _accelerometerOn, // Acelerar inclinando el teléfono
-                    _gyroscopeOn; // Girar moviendo el teléfono
+                    _gyroscopeOn, // Girar moviendo el teléfono
+                    _usePhoneLoc; // Usar localización del teléfono
 
     private int _autoLightsPitch, // Sensibilidad de las luces automáticas
                 _autoStopDistance, // Distancia a la que se detecta un obstaculo
@@ -51,7 +52,7 @@ public class Settings implements Serializable {
      * @param _lastLat
      * @param _lastLong
      */
-    public Settings(boolean _useDefault, boolean _autoLights, boolean _autoStop, boolean _autoVent, boolean _notifCarOn, boolean _notifCarParked, boolean _notifLowBattery, boolean _phoneVibeOn, boolean _accelerometerOn, boolean _gyroscopeOn, int _autoLightsPitch, int _autoStopDistance, int _autoVentTemp, String _carName, float _lastLat, float _lastLong) {
+    public Settings(boolean _useDefault, boolean _autoLights, boolean _autoStop, boolean _autoVent, boolean _notifCarOn, boolean _notifCarParked, boolean _notifLowBattery, boolean _phoneVibeOn, boolean _accelerometerOn, boolean _gyroscopeOn, boolean _usePhoneLoc, int _autoLightsPitch, int _autoStopDistance, int _autoVentTemp, String _carName, float _lastLat, float _lastLong) {
         this._useDefault = _useDefault;
         this._autoLights = _autoLights;
         this._autoStop = _autoStop;
@@ -62,6 +63,7 @@ public class Settings implements Serializable {
         this._phoneVibeOn = _phoneVibeOn;
         this._accelerometerOn = _accelerometerOn;
         this._gyroscopeOn = _gyroscopeOn;
+        this._usePhoneLoc = _usePhoneLoc;
         this._autoLightsPitch = _autoLightsPitch;
         this._autoStopDistance = _autoStopDistance;
         this._autoVentTemp = _autoVentTemp;
@@ -84,6 +86,7 @@ public class Settings implements Serializable {
         this._phoneVibeOn = false;
         this._accelerometerOn = false;
         this._gyroscopeOn = false;
+        this._usePhoneLoc = false;
         this._autoLightsPitch = 700;
         this._autoStopDistance = 10;
         this._autoVentTemp = 24;
@@ -110,6 +113,7 @@ public class Settings implements Serializable {
         edt.putBoolean("_phoneVibeOn", _phoneVibeOn);
         edt.putBoolean("_accelerometerOn", _accelerometerOn);
         edt.putBoolean("_gyroscopeOn", _gyroscopeOn);
+        edt.putBoolean("_usePhoneLoc", _usePhoneLoc);
         edt.putInt("_autoLightsPitch", _autoLightsPitch);
         edt.putInt("_autoStopDistance", _autoStopDistance);
         edt.putInt("_autoVentTemp", _autoVentTemp);
@@ -128,7 +132,7 @@ public class Settings implements Serializable {
         new Settings();
         SharedPreferences sharedPreferences = context.getSharedPreferences("CarduinoPrefs", Context.MODE_PRIVATE);
 
-        this._autoLights = sharedPreferences.getBoolean("_useDefault", _useDefault);
+        this._useDefault = sharedPreferences.getBoolean("_useDefault", _useDefault);
         this._autoLights = sharedPreferences.getBoolean("_autoLights", _autoLights);
         this._autoStop = sharedPreferences.getBoolean("_autoStop", _autoStop);
         this._autoVent = sharedPreferences.getBoolean("_autoVent", _autoVent);
@@ -138,6 +142,7 @@ public class Settings implements Serializable {
         this._phoneVibeOn = sharedPreferences.getBoolean("_phoneVibeOn", _phoneVibeOn);
         this._accelerometerOn = sharedPreferences.getBoolean("_speedometerOn", _accelerometerOn);
         this._gyroscopeOn = sharedPreferences.getBoolean("_gyroscopeOn", _gyroscopeOn);
+        this._usePhoneLoc = sharedPreferences.getBoolean("_usePhoneLoc", _usePhoneLoc);
         this._autoLightsPitch = sharedPreferences.getInt("_autoLightsPitch", _autoLightsPitch);
         this._autoStopDistance = sharedPreferences.getInt("_autoStopDistance", _autoStopDistance);
         this._autoVentTemp = sharedPreferences.getInt("_autoVentTemp", _autoVentTemp);
@@ -272,5 +277,13 @@ public class Settings implements Serializable {
 
     public void set_carName(String _carName) {
         this._carName = _carName;
+    }
+
+    public boolean is_usePhoneLoc() {
+        return _usePhoneLoc;
+    }
+
+    public void set_usePhoneLoc(boolean _usePhoneLoc) {
+        this._usePhoneLoc = _usePhoneLoc;
     }
 }

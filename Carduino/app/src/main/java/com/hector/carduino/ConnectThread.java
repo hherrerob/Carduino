@@ -9,12 +9,13 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Gestiona la conexión Bluetooth con el vehículo
  */
 public class ConnectThread extends Thread {
+    /** Adaptador de Bluetooth */
+    public static BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     /** Conexión con el módulo HC-06 de Arduino */
     private final BluetoothSocket mmSocket;
     /** Dispositivo al que está conectado*/
@@ -27,6 +28,14 @@ public class ConnectThread extends Thread {
      * @param device
      */
     public ConnectThread(BluetoothDevice device) {
+        if (!mBluetoothAdapter.isEnabled()) {
+            mBluetoothAdapter.enable();
+            while(!mBluetoothAdapter.isEnabled())
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) { }
+        }
+
         BluetoothSocket tmp = null;
         mmDevice = device;
 
@@ -60,7 +69,8 @@ public class ConnectThread extends Thread {
     public void send(char cmd) {
         try {
             mmSocket.getOutputStream().write(cmd);
-        } catch (IOException e) { }
+        } catch (IOException e) {
+        } catch (NullPointerException e) { }
     }
 
     /**
@@ -73,7 +83,8 @@ public class ConnectThread extends Thread {
                 mmSocket.getOutputStream().write(c);
                 Thread.sleep(50);
             } catch (IOException e) {
-            }catch (InterruptedException e) { }
+            } catch (InterruptedException e) {
+            } catch (NullPointerException e) { }
         }
     }
 
@@ -152,7 +163,6 @@ public class ConnectThread extends Thread {
     }
 
     public static void detectBluetooth(Context context) {
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             Toast.makeText(context, R.string.error_no_bt, Toast.LENGTH_LONG).show();
         } else {

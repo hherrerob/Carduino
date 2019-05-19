@@ -21,8 +21,9 @@
         android:supportsRtl="true"
         android:theme="@style/MainActStyle">
         <service
-            android:enabled="true"
-            android:name="com.hector.carduino.BluetoothService" />
+            android:name=".BluetoothService"
+            android:enabled="true" />
+
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait">
@@ -63,7 +64,10 @@
             android:label="@string/title_activity_maps" />
         <activity
             android:name=".SettingsActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ControlsActivity"
+            android:screenOrientation="landscape"></activity>
     </application>
 
 </manifest>

@@ -12,14 +12,15 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+
+import com.manojbhadane.QButton;
 
 /**
  * Permite conducir el dispositivo en (solo) dos direcciones y a la mínima velocidad posible
  */
 public class SummonActivity extends AppCompatActivity {
 
-    private Button moveForward, moveBackwards, stopMove;
+    private QButton moveForward, moveBackwards, stopMove;
     private FloatingActionButton backButton;
 
     private Messenger messageSender;

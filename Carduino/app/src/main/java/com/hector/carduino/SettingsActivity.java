@@ -65,6 +65,9 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 gatherSettings();
                 settings.savePrefs(SettingsActivity.this);
+
+                Intent returnIntent = new Intent();
+                SettingsActivity.this.setResult(RESULT_OK, returnIntent);
                 SettingsActivity.this.finish();
             }
         });
@@ -84,9 +87,9 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
         this.carName = findViewById(R.id.CAR_NAME);
-        this.carName.setText(settings.get_carName().toString());
+        this.carName.setText(settings.get_carName());
 
-        this.switchSettings = new Switch[9];
+        this.switchSettings = new Switch[10];
         this.switchSettings[0] = findViewById(R.id.HP_LIGHTS);
         this.switchSettings[0].setChecked(settings.is_autoLights());
         this.switchSettings[1] = findViewById(R.id.CRASH_DETECT);
@@ -105,6 +108,8 @@ public class SettingsActivity extends AppCompatActivity {
         this.switchSettings[7].setChecked(settings.is_gyroscopeOn());
         this.switchSettings[8] = findViewById(R.id.DEFAULT);
         this.switchSettings[8].setChecked(settings.is_useDefault());
+        this.switchSettings[9] = findViewById(R.id.LOCATION);
+        this.switchSettings[9].setChecked(settings.is_usePhoneLoc());
 
         this.sbPitch = findViewById(R.id.SB_PITCH);
         this.sbPitch.setProgress(settings.get_autoLightsPitch() -100);
@@ -163,6 +168,7 @@ public class SettingsActivity extends AppCompatActivity {
         this.settings.set_accelerometerOn(this.switchSettings[6].isChecked());
         this.settings.set_gyroscopeOn(this.switchSettings[7].isChecked());
         this.settings.set_useDefault(this.switchSettings[8].isChecked());
+        this.settings.set_usePhoneLoc(this.switchSettings[9].isChecked());
         this.settings.set_autoLightsPitch(this.sbPitch.getProgress() +10);
         this.settings.set_autoStopDistance(this.sbDistance.getProgress() +100);
         this.settings.set_carName(this.carName.getText().toString());

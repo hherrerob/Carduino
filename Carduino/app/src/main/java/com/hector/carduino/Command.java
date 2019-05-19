@@ -30,7 +30,7 @@ public class Command {
     public static final char AUTO_VENT_ON = 'F';
     public static final char AUTO_VENT_OFF = 'X';
     public static final char VENT_ON = 'V';
-    public static final char VENT_OFF = 'D';
+    public static final char VENT_OFF = 'd';
     public static final char USE_DEFAULT_CONFIG = 'x';
 
 

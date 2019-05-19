@@ -19,6 +19,7 @@ public class ClimateActivity extends AppCompatActivity {
     private ImageButton increaseTemp, decreaseTemp;
     private QButton tempToggler;
     private FloatingActionButton backButton;
+    private Status status;
     private Rotator rotator;
     private int currTemp, desiredTemp;
 
@@ -37,9 +38,9 @@ public class ClimateActivity extends AppCompatActivity {
      * Instancia la información necesaria para el correcto funcionamiento de la actividad
      */
     private void set() {
-        /**
-         * Animador del ventilador
-         */
+
+        this.status = (Status) getIntent().getExtras().getSerializable("status");
+
         this.rotator = new Rotator(settings.is_autoVent());
         rotator.start();
 
@@ -47,9 +48,6 @@ public class ClimateActivity extends AppCompatActivity {
         this.tempToggler.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /**
-                 * Cambia la refrigeración automatica encendida/apagada
-                 */
                 rotator.on = !rotator.on;
                 if(rotator.on)
                     tempToggler.setText(R.string.climate_on);
@@ -62,7 +60,7 @@ public class ClimateActivity extends AppCompatActivity {
             tempToggler.setText(R.string.climate_on);
         else tempToggler.setText(R.string.climate_off);
 
-        this.currTemp = 24; // TODO: intent get extras
+        this.currTemp = (int) status.get_temp();
         this.desiredTemp = settings.get_autoVentTemp();
 
         this.tempTracker = findViewById(R.id.TEMP_TRACKER);
@@ -75,7 +73,6 @@ public class ClimateActivity extends AppCompatActivity {
         this.increaseTemp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /** Aumenta 1º la temperatuda deseada */
                 desiredTemp++;
                 updateDesiredTemp(desiredTemp);
             }
@@ -85,7 +82,6 @@ public class ClimateActivity extends AppCompatActivity {
         this.decreaseTemp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /** Disminuye 1º la temperatuda deseada */
                 desiredTemp--;
                 updateDesiredTemp(desiredTemp);
             }
@@ -93,7 +89,6 @@ public class ClimateActivity extends AppCompatActivity {
 
 
         this.backButton = findViewById(R.id.BACK_BUTTON);
-        /** Cierra la actividad */
         this.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -10,9 +10,10 @@
     <FrameLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
-        android:layout_height="308dp"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/REFRESH"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="-20dp">
 
         <ImageView
             android:id="@+id/imageView2"
@@ -129,7 +130,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
                     android:layout_weight="0.1"
                     android:foregroundGravity="center"
                     app:si_animation_duration="250"
@@ -145,7 +147,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_margin="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
                     android:layout_weight="0.1"
                     android:foregroundGravity="center"
                     app:si_animation_duration="250"
@@ -162,6 +165,48 @@
                     android:layout_weight="1">
 
                 </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:foregroundGravity="center"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <eo.view.batterymeter.BatteryMeterView
+                    android:id="@+id/BATTERY_MOTOR"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:rotation="90"
+                    app:batteryMeterChargeLevel="100"
+                    app:batteryMeterChargingColor="@color/battery_charging"
+                    app:batteryMeterColor="@color/motor_color"
+                    app:batteryMeterCriticalChargeLevel="15"
+                    app:batteryMeterCriticalColor="@color/battery_critical"
+                    app:batteryMeterIndicatorColor="@android:color/transparent"
+                    app:batteryMeterIsCharging="false"
+                    app:batteryMeterTheme="rounded"
+                    app:batteryMeterUnknownColor="@color/battery_unk" />
+
+                <eo.view.batterymeter.BatteryMeterView
+                    android:id="@+id/BATTERY_ARDUINO"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:rotation="90"
+                    app:batteryMeterChargeLevel="100"
+                    app:batteryMeterChargingColor="@color/battery_charging"
+                    app:batteryMeterColor="@color/arduino_color"
+                    app:batteryMeterCriticalChargeLevel="15"
+                    app:batteryMeterCriticalColor="@color/battery_critical"
+                    app:batteryMeterIndicatorColor="@android:color/transparent"
+                    app:batteryMeterIsCharging="false"
+                    app:batteryMeterTheme="rounded"
+                    app:batteryMeterUnknownColor="@color/battery_unk" />
+
             </LinearLayout>
 
             <LinearLayout

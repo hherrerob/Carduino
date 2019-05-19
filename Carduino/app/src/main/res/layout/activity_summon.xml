@@ -32,15 +32,23 @@
 
         </RelativeLayout>
 
-        <Button
+        <com.manojbhadane.QButton
             android:id="@+id/FORWARD"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
             android:layout_weight="0.5"
+            android:fontFamily="@font/abel"
             android:text="@string/summon_forward"
-            android:textColor="@color/def_pointer_color" />
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            app:qb_backgroundColor="@android:color/transparent"
+            app:qb_radius="20"
+            app:qb_strokeColor="@android:color/white"
+            app:qb_strokeWidth="3"
+            tools:text="@string/summon_forward" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -65,15 +73,23 @@
 
         </RelativeLayout>
 
-        <Button
+        <com.manojbhadane.QButton
             android:id="@+id/BACKWARD"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/divider2"
-            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
             android:layout_weight="0.5"
+            android:fontFamily="@font/abel"
             android:text="@string/summon_backward"
-            android:textColor="@color/def_pointer_color" />
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            app:qb_backgroundColor="@android:color/transparent"
+            app:qb_radius="20"
+            app:qb_strokeColor="@android:color/white"
+            app:qb_strokeWidth="3"
+            tools:text="@string/summon_backward" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -110,14 +126,23 @@
 
         </RelativeLayout>
 
-        <Button
+        <com.manojbhadane.QButton
             android:id="@+id/STOP"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerHorizontal="true"
-            android:layout_weight="0.5"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_weight="0.3"
+            android:fontFamily="@font/abel"
             android:text="@string/summon_stop"
-            android:textColor="@color/def_pointer_color" />
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            app:qb_backgroundColor="@android:color/transparent"
+            app:qb_radius="20"
+            app:qb_strokeColor="@android:color/white"
+            app:qb_strokeWidth="3"
+            tools:text="@string/summon_stop" />
 
         <RelativeLayout
             android:layout_width="match_parent"

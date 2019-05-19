@@ -1,19 +1,14 @@
 package com.hector.carduino;
 
+import android.app.Activity;
 import android.content.Context;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
 
 /**
@@ -21,7 +16,7 @@ import java.io.Serializable;
  */
 public class Status implements Serializable {
     private static final String FILENAME = "currentStatus.txt";
-    private static final String REGEX = "[{][0-1][,][0-1][,][0-1][,][0-2][,][0-1][,][0-1][,][P,R,N,D][,][1-6][,][0-9]{1,2}[.]{0,1}[0-9]{0,2}[}]";
+    private static final String REGEX = "[{][\\s\\S]*[}]";
     private boolean _locked;
     private boolean _frontLightsOn;
     private boolean _posLightsOn;
@@ -31,6 +26,20 @@ public class Status implements Serializable {
     private char _marcha;
     private int _speed;
     private float _temp;
+    private boolean _vent;
+    private int _battery_1;
+    private int _battery_2;
+    private double _lat;
+    private double _lon;
+    private int _sats;
+    private double _kmph;
+    private int _pvb_1;
+    private int _pvb_2;
+    private boolean _autoStop;
+    private int _ldrReading;
+    private int _distance;
+
+
     private long lastStatus;
     private String last;
     private String lastValid;
@@ -42,7 +51,7 @@ public class Status implements Serializable {
     public Status(String status) {
         lastValid = getLast(status);
         try {
-            lastValid = lastValid.substring(1, lastValid.length() - 2);
+            lastValid = lastValid.substring(1, lastValid.length() - 1);
             last = lastValid;
             String[] data = lastValid.split(",");
             this._locked = parseToBool(data[0]);
@@ -54,6 +63,18 @@ public class Status implements Serializable {
             this._marcha = data[6].charAt(0);
             this._speed = Integer.parseInt(data[7]);
             this._temp = Float.parseFloat(data[8]);
+            this._vent = parseToBool(data[9]);
+            this._battery_1 = Integer.parseInt(data[10]);
+            this._battery_2 = Integer.parseInt(data[11]);
+            this._lat = Double.parseDouble(data[12]);
+            this._lon = Double.parseDouble(data[13]);
+            this._sats = Integer.parseInt(data[14]);
+            this._kmph = Double.parseDouble(data[15]);
+            this._pvb_1 = Integer.parseInt(data[16]);
+            this._pvb_2 = Integer.parseInt(data[17]);
+            this._autoStop = parseToBool(data[18]);
+            this._ldrReading = Integer.parseInt(data[19]);
+            this._distance = Integer.parseInt(data[20]);
             this.lastStatus = System.currentTimeMillis();
         } catch(IndexOutOfBoundsException e){
         } catch(NullPointerException ex){ }
@@ -117,6 +138,16 @@ public class Status implements Serializable {
         if(str.equals("0"))
             return false;
         else return true;
+    }
+
+    public int tlToStr() {
+        if(is_emLightOn())
+            return 3;
+        else if(_turnLightsOn == 1)
+            return 1;
+        else if(_turnLightsOn == 2)
+            return 2;
+        else return 0;
     }
 
     public boolean is_locked() {
@@ -209,5 +240,109 @@ public class Status implements Serializable {
 
     public void set_temp(float _temp) {
         this._temp = _temp;
+    }
+
+    public boolean is_vent() {
+        return _vent;
+    }
+
+    public void set_vent(boolean _vent) {
+        this._vent = _vent;
+    }
+
+    public int get_battery_1() {
+        return _battery_1;
+    }
+
+    public void set_battery_1(int _battery_1) {
+        this._battery_1 = _battery_1;
+    }
+
+    public int get_battery_2() {
+        return _battery_2;
+    }
+
+    public void set_battery_2(int _battery_2) {
+        this._battery_2 = _battery_2;
+    }
+
+    public String getLastValid() {
+        return lastValid;
+    }
+
+    public void setLastValid(String lastValid) {
+        this.lastValid = lastValid;
+    }
+
+    public double get_lat() {
+        return _lat;
+    }
+
+    public void set_lat(double _lat) {
+        this._lat = _lat;
+    }
+
+    public double get_lon() {
+        return _lon;
+    }
+
+    public void set_lon(double _lon) {
+        this._lon = _lon;
+    }
+
+    public int get_sats() {
+        return _sats;
+    }
+
+    public void set_sats(int _sats) {
+        this._sats = _sats;
+    }
+
+    public double get_kmph() {
+        return _kmph;
+    }
+
+    public void set_kmph(double _kmph) {
+        this._kmph = _kmph;
+    }
+
+    public int get_pvb_1() {
+        return _pvb_1;
+    }
+
+    public void set_pvb_1(int _pvb_1) {
+        this._pvb_1 = _pvb_1;
+    }
+
+    public int get_pvb_2() {
+        return _pvb_2;
+    }
+
+    public void set_pvb_2(int _pvb_2) {
+        this._pvb_2 = _pvb_2;
+    }
+
+    public boolean is_autoStop() {
+        return _autoStop;
+    }
+
+    public void set_autoStop(boolean _autoStop) {
+        this._autoStop = _autoStop;
+    }
+
+    public int get_ldrReading() {
+        return _ldrReading;
+    }
+
+    public void set_ldrReading(int _ldrReading) {
+        this._ldrReading = _ldrReading;
+    }
+
+    public int get_distance() {
+        return _distance;
+    }
+
+    public void set_distance(int _distance) {
+        this._distance = _distance;
     }
 }

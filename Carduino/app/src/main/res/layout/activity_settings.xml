@@ -361,6 +361,32 @@
                 android:orientation="vertical">
 
                 <Switch
+                    android:id="@+id/LOCATION"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/settings_loc"
+                    android:textAlignment="textStart"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/textView70"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/settings_loc_desc" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="10dp"
+                android:orientation="vertical">
+
+                <Switch
                     android:id="@+id/VIBRATION"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -430,46 +456,6 @@
                     android:text="@string/settings_gyroscope_desc" />
 
             </LinearLayout>
-
-            <View
-                android:id="@+id/divider11"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:background="@color/colorPrimary" />
-
-            <TextView
-                android:id="@+id/textView41"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/abel"
-                android:gravity="center"
-                android:text="@string/settings_export"
-                android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <View
-                android:id="@+id/divider42"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:background="@color/colorPrimary" />
-
-            <TextView
-                android:id="@+id/textView43"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/abel"
-                android:gravity="center"
-                android:text="@string/settings_import"
-                android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
 
             <View
                 android:id="@+id/divider13"

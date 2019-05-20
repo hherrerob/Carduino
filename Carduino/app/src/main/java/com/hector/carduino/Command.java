@@ -57,6 +57,8 @@ public class Command {
     public static final char VENT_OFF = 'd';
     /** Configuración por defecto */
     public static final char USE_DEFAULT_CONFIG = 'x';
+    /** Comprobar pico de batería */
+    public static final char PEAK_BATTERY = '<';
 
 
     /**

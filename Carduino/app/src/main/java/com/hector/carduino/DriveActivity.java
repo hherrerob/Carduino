@@ -31,6 +31,10 @@ public class DriveActivity extends AppCompatActivity {
     /** Boton de recargar */
     private FloatingActionButton refresh;
 
+    /** Vista del candado */
+    private ImageView lock;
+    /** Vista del modo Sport */
+    private ImageView sportMode;
     /** Vista de las luces de posición */
     private ImageView positionLights;
     /** Vista de las luces delanteras */
@@ -52,6 +56,8 @@ public class DriveActivity extends AppCompatActivity {
     private RMSwitch leftBlinker;
     /** Switch del intermitente derecho */
     private RMSwitch rightBlinker;
+    /** AntiSpam intermitentes */
+    private int[] antiSpam;
 
     /** Barra de aceleración */
     private RangeSliderView speedControl;
@@ -63,6 +69,10 @@ public class DriveActivity extends AppCompatActivity {
     private FeedbackTracker feedbackTracker;
     /** Flag: conectado o no */
     private boolean isConnected;
+    /** Flag: control de crucero encendido */
+    private boolean _cruiseControl;
+    /** Flag: modo Sport */
+    private boolean _sportMode;
 
     /** Comunicación con el servicio */
     private Messenger messageSender;
@@ -94,6 +104,10 @@ public class DriveActivity extends AppCompatActivity {
      * Establece los comando a enviar al efectuar los eventos
      */
     private void set() {
+        this.antiSpam = new int[] {0, 0};
+        this._cruiseControl = false;
+        this._sportMode = false;
+
         this.brake = findViewById(R.id.BRAKE);
         this.brake.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,6 +152,36 @@ public class DriveActivity extends AppCompatActivity {
             }
         });
 
+        this.sportMode = findViewById(R.id.SPORT_MODE);
+        this.sportMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                _sportMode = !_sportMode;
+
+                if(_sportMode) {
+                    sportMode.setImageResource(R.mipmap.ic_sport_on_foreground);
+                } else {
+                    sportMode.setImageResource(R.mipmap.ic_sport_foreground);
+                }
+
+            }
+        });
+
+        this.lock = findViewById(R.id.LOCK);
+        this.lock.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Message msg;
+
+                if(currentStatus.is_locked())
+                    msg = Message.obtain(null, BluetoothService.SEND, Command.UNLOCK);
+                else msg = Message.obtain(null, BluetoothService.SEND, Command.LOCK);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
+            }
+        });
+
         this.positionLights = findViewById(R.id.POSITION_LIGHTS);
         this.positionLights.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,6 +190,17 @@ public class DriveActivity extends AppCompatActivity {
                 try {
                     messageSender.send(msg);
                 } catch (RemoteException e) { }
+            }
+        });
+
+        this.positionLights.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Message msg = Message.obtain(null, BluetoothService.SEND, Command.AUTO_LIGHTS_OFF);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
+                return false;
             }
         });
 
@@ -160,6 +215,17 @@ public class DriveActivity extends AppCompatActivity {
             }
         });
 
+        this.headLights.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Message msg = Message.obtain(null, BluetoothService.SEND, Command.AUTO_LIGHTS_ON);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
+                return false;
+            }
+        });
+
         this.emergencyLights = findViewById(R.id.EMERGENCY_LIGHT);
         this.emergencyLights.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -171,8 +237,29 @@ public class DriveActivity extends AppCompatActivity {
             }
         });
 
-        // Solo indicativos
+        this.emergencyLights.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Message msg = Message.obtain(null, BluetoothService.SEND, Command.AUTO_STOP_ON);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
+                return false;
+            }
+        });
+
         this.parkingSign = findViewById(R.id.PARKING);
+        this.parkingSign.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Message msg = Message.obtain(null, BluetoothService.SEND, Command.AUTO_STOP_OFF);
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
+                return false;
+            }
+        });
+
         this.frostSign = findViewById(R.id.FROST);
         this.speedDisplay = findViewById(R.id.SPEED);
 
@@ -180,8 +267,16 @@ public class DriveActivity extends AppCompatActivity {
         this.cruiseControl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Enviar comando
-                //connectThread.sendParameter();
+                _cruiseControl = !_cruiseControl;
+
+                if(_cruiseControl) {
+                    cruiseControl.setImageResource(R.mipmap.ic_cl_on_foreground);
+                } else {
+                    cruiseControl.setImageResource(R.mipmap.ic_cl_off_foreground);
+                }
+
+                speedControl.setEnabled(!_cruiseControl);
+                speedControl.invalidate();
             }
         });
 
@@ -218,7 +313,7 @@ public class DriveActivity extends AppCompatActivity {
                     leftBlinker.setChecked(false);
 
                 Message msg;
-                if(leftBlinker.isChecked())
+                if(rightBlinker.isChecked())
                     msg = Message.obtain(null, BluetoothService.SEND, Command.RIGHT_BLINKER_ON);
                 else msg = Message.obtain(null, BluetoothService.SEND, Command.RIGHT_BLINKER_OFF);
 
@@ -245,6 +340,9 @@ public class DriveActivity extends AppCompatActivity {
         this.speedControl.setOnSlideListener(new RangeSliderView.OnSlideListener() {
             @Override
             public void onSlide(int index) {
+                if(index >= 5 && !_sportMode)
+                    index = 4;
+
                 Message msg = Message.obtain(null, BluetoothService.SEND, Command.SPEED[index]);
                 try {
                     messageSender.send(msg);
@@ -262,6 +360,10 @@ public class DriveActivity extends AppCompatActivity {
         this.currentStatus = status;
         this.isConnected = connected;
 
+        if(status.is_locked())
+            lock.setImageResource(R.mipmap.ic_lock_on_db_foreground);
+        else lock.setImageResource(R.mipmap.ic_lock_off_db_foreground);
+
         if(status.is_emLightOn())
             emergencyLights.setImageResource(R.mipmap.ic_eml_on_foreground);
         else emergencyLights.setImageResource(R.mipmap.ic_eml_off_foreground);
@@ -278,21 +380,36 @@ public class DriveActivity extends AppCompatActivity {
             positionLights.setImageResource(R.mipmap.ic_lb_on_foreground);
         else positionLights.setImageResource(R.mipmap.ic_lb_off_foreground);
 
-        /*switch (status.get_turnLightsOn()) {
+        DriveActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                update();
+            }
+        });
+    }
+
+    /**
+     * Actualiza la UI según los datos recibidos
+     */
+    public void update() {
+        speedDisplay.setText(currentStatus.get_speed() + "");
+
+        switch (currentStatus.get_turnLightsOn()) {
             case 0:
-                check(leftBlinker, false);
-                check(rightBlinker, false);
+                check(leftBlinker, false, 0);
+                check(rightBlinker, false, 1);
                 break;
             case 1:
-                check(leftBlinker, true);
-                check(rightBlinker, false);
+                check(leftBlinker, true, 0);
+                check(rightBlinker, false, 1);
                 break;
             case 2:
-                check(leftBlinker, false);
-                check(rightBlinker, true);
+                check(leftBlinker, false, 0);
+                check(rightBlinker, true, 1);
                 break;
-            default: break;
-        }*/
+            default:
+                break;
+        }
     }
 
     /**
@@ -302,9 +419,12 @@ public class DriveActivity extends AppCompatActivity {
      * @param rmSwitch(RMSwitch) contenedor del valor
      * @param value(Boolean) Valor requerido
      */
-    public void check(RMSwitch rmSwitch, boolean value) {
+    public void check(RMSwitch rmSwitch, boolean value, int index) {
         if(rmSwitch.isChecked() != value) {
-            rmSwitch.setChecked(value);
-        }
+            if (antiSpam[index] > 1) {
+                rmSwitch.setChecked(value);
+                antiSpam[index] = 0;
+            } else antiSpam[index]++;
+        } else antiSpam[index] = 0;
     }
 }

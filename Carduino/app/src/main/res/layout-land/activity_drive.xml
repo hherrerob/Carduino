@@ -28,12 +28,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <RelativeLayout
+        <ImageView
+            android:id="@+id/LOCK"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1">
-
-        </RelativeLayout>
+            android:layout_weight="1"
+            android:clickable="true"
+            app:srcCompat="@mipmap/ic_lock_off_db_foreground" />
 
         <ImageView
             android:id="@+id/POSITION_LIGHTS"
@@ -79,12 +80,13 @@
             android:clickable="true"
             app:srcCompat="@mipmap/ic_hl_off_foreground" />
 
-        <RelativeLayout
+        <ImageView
+            android:id="@+id/SPORT_MODE"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1">
-
-        </RelativeLayout>
+            android:layout_weight="1"
+            android:clickable="true"
+            app:srcCompat="@mipmap/ic_sport_foreground" />
 
     </LinearLayout>
 

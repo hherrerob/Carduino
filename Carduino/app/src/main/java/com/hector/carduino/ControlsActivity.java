@@ -29,13 +29,13 @@ public class ControlsActivity extends AppCompatActivity {
     private ImageButton listCommands;
 
     /** Registros de información del coche */
-    private TextView carTrackers[];
+    private TextView[] carTrackers;
     /** Registros de información de la batería */
-    private TextView batteryTrackers[];
+    private TextView[] batteryTrackers;
     /** Registros de información del GPS */
-    private TextView gpsTrackers[];
+    private TextView[] gpsTrackers;
     /** Registros de información de los sensores */
-    private TextView sensorsTrackers[];
+    private TextView[] sensorsTrackers;
 
     /** Tracker de la última actualización */
     private TextView lastUpdate;

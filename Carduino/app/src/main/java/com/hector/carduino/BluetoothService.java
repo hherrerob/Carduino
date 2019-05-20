@@ -10,17 +10,28 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.Process;
 
+/**
+ * Maneja el servicio que conecta el dispositivo con el módulo Bluetooth de Arduino
+ */
 public class BluetoothService extends Service {
+    /** Caso del menú para comando único */
     public static final int SEND = 1;
+    /** Caso del menú para comando parametrizado */
     public static final int SEND_PARAM = 2;
+    /** Caso del menú para reiniciar la conexión */
     public static final int RESTART = 3;
 
+    /** Looper del servicio */
     private Looper serviceLooper;
+    /** Manejador de órdenes al servicio */
     private ServiceHandler serviceHandler;
 
+    /** Hilo contenedor de la conexión Bluetooth */
     public ConnectThread connectThread;
+    /** Actualizador del Estado del vehículo */
     public StatusTracker statusTracker;
 
+    /** Comunicación con el servicio */
     public Messenger messageSender;
 
     @Override
@@ -55,6 +66,9 @@ public class BluetoothService extends Service {
         return START_STICKY;
     }
 
+    /**
+     * Maneja las órdenes dadas al servicio
+     */
     private final class ServiceHandler extends Handler {
         public ServiceHandler(Looper looper) {
             super(looper);

@@ -15,14 +15,28 @@ import com.manojbhadane.QButton;
  */
 public class ClimateActivity extends AppCompatActivity {
 
-    private TextView tempTracker, tempDesired;
-    private ImageButton increaseTemp, decreaseTemp;
+    /** Display de la temperatura actual */
+    private TextView tempTracker;
+    /** Display de la temperatura deseada */
+    private TextView tempDesired;
+    /** Botón para aumentar la temperatura deseada */
+    private ImageButton increaseTemp;
+    /** Botón para disminuir la temperatura deseada */
+    private ImageButton decreaseTemp;
+    /** Toggler de activación/desactivación de la ventilación automática */
     private QButton tempToggler;
+    /** Botón de salida */
     private FloatingActionButton backButton;
+    /** Estado del vehículo */
     private Status status;
+    /** Hilo del animador */
     private Rotator rotator;
-    private int currTemp, desiredTemp;
+    /** Temperatura actual */
+    private int currTemp;
+    /** Temperatura deseada */
+    private int desiredTemp;
 
+    /** Última configuración guardada*/
     private Settings settings;
 
     @Override
@@ -36,6 +50,8 @@ public class ClimateActivity extends AppCompatActivity {
 
     /**
      * Instancia la información necesaria para el correcto funcionamiento de la actividad
+     * Activa el hilo de rotación
+     * Activa el botón de salida
      */
     private void set() {
 
@@ -102,7 +118,7 @@ public class ClimateActivity extends AppCompatActivity {
 
     /**
      * Actualiza el tracker de la temperatura actual de vehículo
-     * @param temp temperatura actual
+     * @param temp(int) temperatura actual
      */
     private void updateCurrTemp(int temp) {
         this.tempTracker.setText(this.tempTracker.getText().toString() + temp + "º");
@@ -111,7 +127,7 @@ public class ClimateActivity extends AppCompatActivity {
     /**
      * Establece el valor de la temperatura deseado,
      * cuando la temperatura actual este por encima de ese valor se activa la refrigeración
-     * @param temp temperatura deseada
+     * @param temp(int) temperatura deseada
      */
     private void updateDesiredTemp(int temp) {
         this.tempDesired.setText(temp + "º");
@@ -128,7 +144,7 @@ public class ClimateActivity extends AppCompatActivity {
 
         /**
          * Establece el ventidalor en encendido o apagado
-         * @param on Ventilación encendida o apagada
+         * @param on(boolean) Ventilación encendida o apagada
          */
         public Rotator(boolean on){
             super();

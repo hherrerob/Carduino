@@ -4,8 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -16,7 +14,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.github.channguyen.rsv.RangeSliderView;
 import com.rm.rmswitch.RMSwitch;
 
@@ -25,17 +22,51 @@ import com.rm.rmswitch.RMSwitch;
  */
 public class DriveActivity extends AppCompatActivity {
 
-    private FloatingActionButton brake, buzzer, flash, refresh;
-    private ImageView positionLights, headLights, emergencyLights, parkingSign, frostSign, cruiseControl, steeringWheel;
-    public TextView speedDisplay;
-    private RMSwitch leftBlinker, rightBlinker;
-    private RangeSliderView gearShift, speedControl;
+    /** Boton de freno */
+    private FloatingActionButton brake;
+    /** Boton de pitído */
+    private FloatingActionButton buzzer;
+    /** Boton de ráfaga */
+    private FloatingActionButton flash;
+    /** Boton de recargar */
+    private FloatingActionButton refresh;
 
+    /** Vista de las luces de posición */
+    private ImageView positionLights;
+    /** Vista de las luces delanteras */
+    private ImageView headLights;
+    /** Vista de las luces de emergencia */
+    private ImageView emergencyLights;
+    /** Vista del freno de estacionamiento*/
+    private ImageView parkingSign;
+    /** Vista del estado de la carretera*/
+    private ImageView frostSign;
+    /** Vista del control de crucero */
+    private ImageView cruiseControl;
+    /** Vista del volante */
+    private ImageView steeringWheel;
+
+    /** Display de la velocidad */
+    public TextView speedDisplay;
+    /** Switch del intermitente izquierdo */
+    private RMSwitch leftBlinker;
+    /** Switch del intermitente derecho */
+    private RMSwitch rightBlinker;
+
+    /** Barra de aceleración */
+    private RangeSliderView speedControl;
+    /** Barra de marchas */
+    private RangeSliderView gearShift;
+    /** Estado actual de vehículo */
     private Status currentStatus;
+    /** Hilo que va actualizando el status y efectúa llamadas al método actualizador */
     private FeedbackTracker feedbackTracker;
+    /** Flag: conectado o no */
     private boolean isConnected;
 
+    /** Comunicación con el servicio */
     private Messenger messageSender;
+    /** Establecimiento de conexión con el servicio */
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -60,6 +91,7 @@ public class DriveActivity extends AppCompatActivity {
 
     /**
      * Instancia los componentes y recursos necesarios para la actividad
+     * Establece los comando a enviar al efectuar los eventos
      */
     private void set() {
         this.brake = findViewById(R.id.BRAKE);
@@ -156,7 +188,7 @@ public class DriveActivity extends AppCompatActivity {
         //TODO: rotate
         this.steeringWheel = findViewById(R.id.STEERING_WHEEL);
 
-        /** Activa/Desactiva el intermitente izquierdo y desactiva el derecho(si está activado) */
+        // Activa/Desactiva el intermitente izquierdo y desactiva el derecho(si está activado)
         this.leftBlinker = findViewById(R.id.LEFT_BLINKER);
         this.leftBlinker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -176,7 +208,7 @@ public class DriveActivity extends AppCompatActivity {
             }
         });
 
-        /** Activa/Desactiva el intermitente derecho y desactiva el izquierdo(si está activado) */
+        // Activa/Desactiva el intermitente derecho y desactiva el izquierdo(si está activado)
         this.rightBlinker = findViewById(R.id.RIGHT_BLINKER);
         this.rightBlinker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,7 +228,7 @@ public class DriveActivity extends AppCompatActivity {
             }
         });
 
-        /** Cambia de marcha */
+        // Cambia de marcha
         this.gearShift = findViewById(R.id.SHIFT);
         this.gearShift.setOnSlideListener(new RangeSliderView.OnSlideListener() {
             @Override
@@ -208,7 +240,7 @@ public class DriveActivity extends AppCompatActivity {
             }
         });
 
-        /** Cambia de velocidad */
+        // Cambia de velocidad
         this.speedControl = findViewById(R.id.ACCELERATOR);
         this.speedControl.setOnSlideListener(new RangeSliderView.OnSlideListener() {
             @Override
@@ -224,7 +256,7 @@ public class DriveActivity extends AppCompatActivity {
 
     /**
      * Realiza una serie de ajustes en función de el status del coche
-     * @param status Estado actual del coche
+     * @param status(Status) Estado actual del coche
      */
     public void dashBoardHandler(Status status, boolean connected) {
         this.currentStatus = status;
@@ -267,8 +299,8 @@ public class DriveActivity extends AppCompatActivity {
      * Método antiSpam: Para evitar el spam de intermitentes reseteandose cada 500ms,
      * al llamar a este método solo se cambian si el estado que deberían tener es distinto
      * a su estado actual
-     * @param rmSwitch Switch contenedor del valor
-     * @param value Valor requerido
+     * @param rmSwitch(RMSwitch) contenedor del valor
+     * @param value(Boolean) Valor requerido
      */
     public void check(RMSwitch rmSwitch, boolean value) {
         if(rmSwitch.isChecked() != value) {

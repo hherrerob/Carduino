@@ -23,16 +23,29 @@ import android.widget.TextView;
  */
 public class SettingsActivity extends AppCompatActivity {
 
+    /** Array contenedor de los ajustes activados y desactivados */
     private Switch[] switchSettings;
-    private SeekBar sbPitch, sbDistance;
-    private TextView sbPitchTxt, sbDistTxt;
+    /** Rango de valores para las luces automáticas */
+    private SeekBar sbPitch;
+    /** Rango de valores para la parada automática */
+    private SeekBar sbDistance;
+    /** Display del valor en el que se activan las luces automáticas */
+    private TextView sbPitchTxt;
+    /** Display del valor en el que se activa la parada automática */
+    private TextView sbDistTxt;
+    /** Editor del nombre del vehículo */
     private EditText carName;
+    /** Botón de salida */
     private FloatingActionButton backButton;
+    /** Botón de parametrización */
     private ImageView sendButton;
 
+    /** Configuración del vehículo */
     private Settings settings;
 
+    /** Comunicación con el servicio */
     private Messenger messageSender;
+    /** Establecimiento de conexión con el servicio */
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -57,7 +70,9 @@ public class SettingsActivity extends AppCompatActivity {
                 Context.BIND_AUTO_CREATE);
     }
 
-    /** Instancia los recursos necesarios y establece los valores actuales a partir de una configuración ya guardada */
+    /**
+     * Instancia los recursos necesarios y establece los valores actuales a partir de una configuración ya guardada
+     */
     private void set() {
         this.backButton = findViewById(R.id.BACK_BUTTON);
         this.backButton.setOnClickListener(new View.OnClickListener() {

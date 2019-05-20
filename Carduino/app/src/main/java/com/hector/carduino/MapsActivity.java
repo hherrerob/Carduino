@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,19 +23,27 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
+/**
+ * Intenta cargar una ubicación del vehículo
+ * Muestra la ubicación en un mapa junto con los datos propios de ésta
+ */
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+    /** Permiso que pedir para usar la geolocalización */
     private static final int REQUEST = 112;
 
+    /** Mapa */
     private GoogleMap mMap;
+    /** Displays de los datos */
     private TextView address, state, country;
+    /** Botón de salida */
     private FloatingActionButton backButton;
+    /** Estado del coche */
     private Status currentStatus;
+    /** Configuración guardada */
     private Settings settings;
 
     @Override
@@ -57,13 +64,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
+     * Manipula el mapa cuando esté disponible.
+     * Este callback se dispara cuando el mapa está listo
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -72,6 +74,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         set();
     }
 
+    /**
+     * Recoge vistas de los componentes
+     * Comprueba que haya permisos
+     * Carga una localización según el status, la configuración y la conexión
+     */
     public void set() {
         this.settings = new Settings();
         this.settings.getPrefs(MapsActivity.this);
@@ -111,6 +118,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Carga la última localización guardada
+     */
     public void useSavedLoc() {
         settings.getPrefs(this);
         try {
@@ -119,6 +129,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (IndexOutOfBoundsException e) { }
     }
 
+    /**
+     * Pide los permisos de los necesarios para usar la localización del teléfono
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -133,6 +149,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Comprueba si tiene permisos
+     * @param context
+     * @param permissions
+     * @return true si tiene permisos, false si no
+     */
     private static boolean hasPermissions(Context context, String... permissions) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
             for (String permission : permissions) {
@@ -144,6 +166,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return true;
     }
 
+    /**
+     * Busca la situación del GPS del teléfono, si no puede, carga la última guardada
+     */
     public void getLocation() {
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         @SuppressLint("MissingPermission")
@@ -153,14 +178,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             double latitude = location.getLatitude();
 
             saveLocation(latitude, longitude);
-
             setLocation(latitude, longitude);
         } catch (NullPointerException e) {
-            Toast.makeText(MapsActivity.this, getString(R.string.error_loc_off), Toast.LENGTH_LONG).show();
             useSavedLoc();
         }
     }
 
+    /**
+     * Guarda la última ubicación cargada
+     * @param latitude (double) Latitud
+     * @param longitude (double) Longitud
+     */
     public void saveLocation(double latitude, double longitude) {
         this.settings = new Settings();
         this.settings.getPrefs(this);
@@ -169,6 +197,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         this.settings.savePrefs(this);
     }
 
+    /**
+     * Carga una ubicación
+     * @param latitude (double) Latitud
+     * @param longitude (double) Longitud
+     */
     public void setLocation(double latitude, double longitude) {
         LatLng position = new LatLng(latitude, longitude);
         if(latitude != 0 && longitude != 0) {
@@ -180,6 +213,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Obtiene una dirección a partir de la longitud y latitud
+     * @param latitude (double) Latitud
+     * @param longitude (double) Longitud
+     * @throws IOException
+     */
     public void getAddress(double latitude, double longitude) throws IOException {
         Geocoder geocoder;
         List<Address> addresses;

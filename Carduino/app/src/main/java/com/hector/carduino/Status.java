@@ -1,8 +1,6 @@
 package com.hector.carduino;
 
-import android.app.Activity;
 import android.content.Context;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -15,38 +13,63 @@ import java.io.Serializable;
  * Contiene información sobre el estado del vehículo
  */
 public class Status implements Serializable {
+    /** Fichero del que se lee el estado */
     private static final String FILENAME = "currentStatus.txt";
+    /** Expresión con la que se valida la recepción de información */
     private static final String REGEX = "[{][\\s\\S]*[}]";
+    /** Vehículo candado/descandado */
     private boolean _locked;
+    /** Luces delanteras encendidas/Apagadas */
     private boolean _frontLightsOn;
+    /** Luces de posición encendidas/Apagadas */
     private boolean _posLightsOn;
+    /** Intermitente encendido */
     private int _turnLightsOn;
+    /** Luces de emergencia encendidas */
     private boolean _emLightOn;
+    /** Parada automática detectada */
     private boolean _emStopped;
+    /** Marcha activada */
     private char _marcha;
+    /** Velocidad activada */
     private int _speed;
+    /** Lectura de la temperatura */
     private float _temp;
+    /** Ventilación Activada/Apagada */
     private boolean _vent;
+    /** Porcentaje Batería 1 */
     private int _battery_1;
+    /** Porcentaje Batería 2 */
     private int _battery_2;
+    /** Latitud */
     private double _lat;
+    /** Longitud */
     private double _lon;
+    /** Satélites en uso por el GPS */
     private int _sats;
+    /** Velocidad en km/h */
     private double _kmph;
+    /** Pico más alto de batería 1 */
     private int _pvb_1;
+    /** Pico más alto de batería 2 */
     private int _pvb_2;
+    /** Parada automática */
     private boolean _autoStop;
+    /** Lectura del LDR */
     private int _ldrReading;
+    /** Distancia libre de frente */
     private int _distance;
 
-
+    /** Último estado recibido */
     private long lastStatus;
+    /** Último dato recibido */
     private String last;
+    /** Último dato válido recibido */
     private String lastValid;
 
     /**
      * Establece el Status a partir del mensaje recogido por Bluetooth
-     * @param status Mensaje recibido del Bluetooth
+     * @param status(Status) Mensaje recibido del Bluetooth
      */
     public Status(String status) {
         lastValid = getLast(status);
@@ -80,6 +103,9 @@ public class Status implements Serializable {
         } catch(NullPointerException ex){ }
     }
 
+    /**
+     * Contructor que sólo guarda el momento de construcción
+     */
     public Status() {
         this.lastStatus = System.currentTimeMillis();
     }
@@ -92,7 +118,11 @@ public class Status implements Serializable {
         return last;
     }
 
-
+    /**
+     * Obtiene el último String parseable válido
+     * @param status(String) String a parsear
+     * @return El último String parseable válido
+     */
     public String getLast(String status) {
         if(status != null && status.contains(";")) {
             String[] gatheredStatus = status.split(";");
@@ -106,6 +136,10 @@ public class Status implements Serializable {
         } else return null;
     }
 
+    /**
+     * Escribe el Status en un fichero de objeto
+     * @param context(Context) Desde donde se intenta escribir el fichero
+     */
     public void writeToFile(Context context) {
         try {
             if(lastValid != null) {
@@ -120,6 +154,11 @@ public class Status implements Serializable {
         catch (IOException e) { }
     }
 
+    /**
+     * Lee un Status de un fichero
+     * @param context(Context) Desde donde se intenta leer el fichero
+     * @return (Status) El último Status escrito en el fichero
+     */
     public static Status readFromFile(Context context) throws IOException, ClassNotFoundException {
         FileInputStream fis = context.openFileInput(FILENAME);
         ObjectInputStream is = new ObjectInputStream(fis);
@@ -131,8 +170,8 @@ public class Status implements Serializable {
 
     /**
      * Convierte un String a Boolean
-     * @param str Booleano contenido en un String
-     * @return Boolean: el string convertido a Boolean
+     * @param str(String) Booleano contenido en un String
+     * @return (boolean) el string convertido a boolean
      */
     public boolean parseToBool(String str) {
         if(str.equals("0"))
@@ -140,6 +179,10 @@ public class Status implements Serializable {
         else return true;
     }
 
+    /**
+     * Parsea el dato del intermitente a un índice
+     * @return (int) El índice de un array de labels
+     */
     public int tlToStr() {
         if(is_emLightOn())
             return 3;

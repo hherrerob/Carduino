@@ -31,7 +31,6 @@ public class Settings implements Serializable {
 
     private String _carName; // Nombre del vehículo
 
-    // #TODO: IMPORT/EXPORT
 
     /**
      * Constructor sobrecargado

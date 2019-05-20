@@ -12,7 +12,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-
 import com.manojbhadane.QButton;
 
 /**
@@ -20,10 +19,18 @@ import com.manojbhadane.QButton;
  */
 public class SummonActivity extends AppCompatActivity {
 
-    private QButton moveForward, moveBackwards, stopMove;
+    /** Botón de marcha adelante */
+    private QButton moveForward;
+    /** Botón de marcha atrás */
+    private QButton moveBackwards;
+    /** Botón de parada */
+    private QButton stopMove;
+    /** Botón de salida */
     private FloatingActionButton backButton;
 
+    /** Comunicación con el servicio */
     private Messenger messageSender;
+    /** Establecimiento de conexión con el servicio */
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -46,6 +53,7 @@ public class SummonActivity extends AppCompatActivity {
 
     /**
      * Instancia los recursos necesarios para el funcionamiento de la aplicación
+     * Activa los botones de movimiento
      */
     private void set() {
         this.backButton = findViewById(R.id.BACK_BUTTON);
@@ -86,9 +94,11 @@ public class SummonActivity extends AppCompatActivity {
                 sendStop();
             }
         });
-
     }
 
+    /**
+     * Manda los comandos pertinentes para hacer detenerse al vehículo
+     */
     public void sendStop() {
         Message msg = Message.obtain(null, BluetoothService.SEND, new String(new char[]{Command.GEAR_SHIFT[0], Command.SPEED[0]}));
         try {
@@ -96,18 +106,27 @@ public class SummonActivity extends AppCompatActivity {
         } catch (RemoteException e) { }
     }
 
+    /**
+     * Parar el vehículo si se para la aplicación/actividad
+     */
     @Override
     protected void onStop() {
         sendStop();
         super.onStop();
     }
 
+    /**
+     * Parar el vehículo si se pausa la aplicación/actividad
+     */
     @Override
     protected void onPause() {
         sendStop();
         super.onPause();
     }
 
+    /**
+     * Parar el vehículo si se destruye la aplicación/actividad
+     */
     @Override
     protected void onDestroy() {
         sendStop();

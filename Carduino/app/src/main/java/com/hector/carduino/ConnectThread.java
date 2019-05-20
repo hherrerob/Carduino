@@ -25,7 +25,7 @@ public class ConnectThread extends Thread {
 
     /**
      * Construye el Socket y comienza la comunicación
-     * @param device
+     * @param device(BluetoothDevice) Dispositivo con el que realizar la conexión
      */
     public ConnectThread(BluetoothDevice device) {
         if (!mBluetoothAdapter.isEnabled()) {
@@ -64,7 +64,7 @@ public class ConnectThread extends Thread {
 
     /**
      * Envía un solo comando
-     * @param cmd Comando a enviar
+     * @param cmd(char) Comando a enviar
      */
     public void send(char cmd) {
         try {
@@ -75,7 +75,7 @@ public class ConnectThread extends Thread {
 
     /**
      * Envia una serie de comandos de forma continuada
-     * @param cmd Array de comandos A enviar
+     * @param cmd(char[]) Array de comandos A enviar
      */
     public void send(char[] cmd) {
         for(char c: cmd) {
@@ -88,6 +88,10 @@ public class ConnectThread extends Thread {
         }
     }
 
+    /**
+     * Establece la configuración a usar y se la envía a Arduino
+     * @param settings(Settings) última configuración establecida
+     */
     public void setConfig(Settings settings) throws InterruptedException {
         if(settings.is_useDefault())
             send(Command.USE_DEFAULT_CONFIG);
@@ -98,6 +102,13 @@ public class ConnectThread extends Thread {
         }
     }
 
+    /**
+     * Manda parametrizar (o no) un comando
+     * @param b(boolean) Si está o no activado
+     * @param cmdTrue(char) Comando si está activado
+     * @param cmdFalse(char) Comando si esta desactivado
+     * @param value(int) Valor de la config
+     */
     public void toParam(boolean b, char cmdTrue, char cmdFalse, int value) throws InterruptedException {
         if(b) {
             send(cmdTrue);
@@ -111,7 +122,9 @@ public class ConnectThread extends Thread {
 
     /**
      * Envia un comando para iniciar la parametrización y
-     * acto seguido enía el comando con el parámetro
+     * acto seguido envía el comando con el parámetro
+     * @param n(int) Valor del parámetro
+     * @param cmd(char) Comando a parametrizar
      */
     public void sendParameter(int n, char cmd) {
         try {
@@ -162,6 +175,10 @@ public class ConnectThread extends Thread {
         return new ConnectThread(device);
     }
 
+    /**
+     * Comprueba si el Bluetooth del dispositivo está encendido
+     * @param context(Context) Desde la actividad donde se llama al método
+     */
     public static void detectBluetooth(Context context) {
         if (mBluetoothAdapter == null) {
             Toast.makeText(context, R.string.error_no_bt, Toast.LENGTH_LONG).show();

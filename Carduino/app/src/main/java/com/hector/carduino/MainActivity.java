@@ -18,30 +18,41 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.github.zagum.switchicon.SwitchIconView;
-
 import eo.view.batterymeter.BatteryMeterView;
 
 /**
  * Contiene el acceso a todas las funcionalidades principales de la aplicación
  */
 public class MainActivity extends AppCompatActivity {
+    /** id Callback de settingsActivity */
     public static final int NAMECHANGE_RESULT = 9;
 
+    /** Botones de recargar y configurar */
     private ImageButton refresh, settings;
+    /** Opciónes que abren actividades **/
     private LinearLayout climateOption, driveOption, controlsOption, locationOption, summonOption;
+    /** Medidores de batería */
     private BatteryMeterView motorBatteryIndicator, arduinoBatteryIndicator;
+    /** Vista representativa de la conexión */
     private RelativeLayout isConnected;
+    /** Flag: conectado o no */
     private Boolean _isConnected;
+    /** Botones activar ventilación, candar/descandar el vehículo */
     private SwitchIconView lock, vent;
+    /** Muestra el nombre del coche */
     private TextView carName;
 
+    /** Contadores para evitar spam(activaciones y desactivaciones muy seguidas) en los switches */
     private int[] antiSpam;
+    /** Contiene el status actual del vehículo */
     private Status currentStatus;
 
+    /** Hilo que va actualizando el status y efectúa llamadas al método actualizador */
     private FeedbackTracker feedbackTracker;
+    /** Comunicación con el servicio */
     private Messenger messageSender;
+    /** Establecimiento de conexión con el servicio */
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -69,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Instancia las propiedades de la actividad
+     * Valida accesos a actividades
      */
     private void set() {
         this.antiSpam = new int[] {0, 0};
@@ -79,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         this.lock.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lock.setIconEnabled(!lock.isIconEnabled());
+                lock.setIconEnabled(!lock.isIconEnabled()); //TODO: Cambiar (?)
                 Message msg;
                 if(lock.isIconEnabled())
                     msg = Message.obtain(null, BluetoothService.SEND, Command.LOCK);
@@ -216,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
         this.isConnected = findViewById(R.id.CONNECTED);
     }
 
+    /** Callback al cerrar una actividad abierta por ésta */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -237,6 +250,14 @@ public class MainActivity extends AppCompatActivity {
         } catch (RemoteException e) { }
     }
 
+    /**
+     * Maneja la UI y variables de control según los datos obtenidos de la conexión
+     * Actualiza el nivel de carga de las baterías
+     * Pone la vista de la conexión en verde si hay conexión, en rojo si no
+     * Actualiza la vista del candado y la ventilación
+     * @param currentStatus(Status) último status válido obtenido
+     * @param connected(Boolean) Conexión establecida o no
+     */
     public void dashboardHandler(final Status currentStatus, boolean connected) {
         if(connected) {
             this.currentStatus = currentStatus;
@@ -263,9 +284,18 @@ public class MainActivity extends AppCompatActivity {
         //TODO: COMPLETAR
     }
 
+    /**
+     * Método para evitar spam
+     * Comprueba que el valor esperado sea igual que el que tiene una variable, si no,
+     * lo intenta cambiar.
+     * Debe hacer dos intentos para cambiarlo antes de que sea posible cambiarlo
+     * @param switchIcon(SwitchIconView) Vista del switch
+     * @param value(Boolean) Valor esperado
+     * @param index(int) Índice en el array de antiSpam
+     */
     public void check(SwitchIconView switchIcon, boolean value, int index) {
         if(switchIcon.isIconEnabled() != value) {
-            if(antiSpam[index] > 2) {
+            if(antiSpam[index] > 1) {
                 switchIcon.setIconEnabled(value);
                 antiSpam[index] = 0;
             } else antiSpam[index]++;

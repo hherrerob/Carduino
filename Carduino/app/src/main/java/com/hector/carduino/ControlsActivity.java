@@ -16,20 +16,42 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import java.util.ResourceBundle;
-
+/**
+ * Obtiene un log en tiempo real a partir de la conexión Bluetooth
+ * Muestra todos los datos recogidos
+ */
 public class ControlsActivity extends AppCompatActivity {
+    /** Botón para salir */
     private FloatingActionButton backButton;
-    private ImageButton sendCommand, listCommands;
-    private TextView carTrackers[], batteryTrackers[], gpsTrackers[], sensorsTrackers[];
+    /** Envia un comando */
+    private ImageButton sendCommand;
+    /** Lista todos los comandos */
+    private ImageButton listCommands;
+
+    /** Registros de información del coche */
+    private TextView carTrackers[];
+    /** Registros de información de la batería */
+    private TextView batteryTrackers[];
+    /** Registros de información del GPS */
+    private TextView gpsTrackers[];
+    /** Registros de información de los sensores */
+    private TextView sensorsTrackers[];
+
+    /** Tracker de la última actualización */
     private TextView lastUpdate;
+    /** Consola */
     private EditText console;
 
+    /** Valor de los intermitentes según el índice */
     private String[] blLabels;
+    /** Estado actual del vehículo */
     public Status currentStatus;
 
+    /** Hilo que va actualizando el status y efectúa llamadas al método actualizador */
     private FeedbackTracker feedbackTracker;
+    /** Comunicación con el servicio */
     private Messenger messageSender;
+    /** Establecimiento de conexión con el servicio */
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -53,6 +75,11 @@ public class ControlsActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Instancia las propiedades de la actividad
+     * Establece como enviar comandos
+     * Establece el display de la lista de comandos
+     */
     public void set() {
         this.blLabels = new String[] {
                 getString(R.string.controls_blinkers_none),
@@ -128,6 +155,10 @@ public class ControlsActivity extends AppCompatActivity {
         };
     }
 
+    /**
+     * Maneja la UI y variables de control según los datos obtenidos de la conexión
+     * @param currentStatus(Status) Estado actual del vehículo
+     */
     public void dashBoardHandler(Status currentStatus) {
         this.currentStatus = currentStatus;
         ControlsActivity.this.runOnUiThread(new Runnable() {
@@ -138,6 +169,7 @@ public class ControlsActivity extends AppCompatActivity {
         });
     }
 
+    /** Método de actualización de los datos mostrados en la UI */
     public void update() {
         carTrackers[0].setText(getString(R.string.controls_car_locked) + valueToOnOff(currentStatus.is_locked()));
         carTrackers[1].setText(getString(R.string.controls_car_speed) + currentStatus.get_speed());
@@ -165,12 +197,22 @@ public class ControlsActivity extends AppCompatActivity {
         lastUpdate.setText(getString(R.string.controls_last_update) + (System.currentTimeMillis() - currentStatus.getLastStatus()) + "ms");
     }
 
+    /**
+     * Convierte un booleano a "On/Off"
+     * @param value(Boolean) Valor a cambiar
+     * @return "On" si el valor es true, "Off" si false
+     */
     public String valueToOnOff(boolean value) {
         if(value)
             return "On";
         else return "Off";
     }
 
+    /**
+     * Convierte un número a "On/Off"
+     * @param value(int) Valor a cambiar
+     * @return "On" si el valor es 1, "Off" si es 0
+     */
     public String valueToOnOff(Integer value) {
         if(value == 1)
             return "On";

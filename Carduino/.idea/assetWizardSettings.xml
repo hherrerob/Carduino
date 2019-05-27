@@ -21,8 +21,6 @@
                                       <entry key="assetType" value="IMAGE" />
                                       <entry key="imageAsset" value="C:\Users\Hector\Desktop\Assets\sm1.png" />
                                       <entry key="outputName" value="ic_list_cmd" />
-                                      <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="ffffff" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -61,7 +59,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="scalingPercent" value="88" />
+                                                <entry key="scalingPercent" value="150" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
@@ -72,12 +70,8 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="backgroundColor" value="000000" />
-                                      <entry key="backgroundLayerName" value="ic_lock_off_background" />
-                                      <entry key="foregroundImage" value="C:\Users\Hector\Downloads\lock_off.png" />
-                                      <entry key="foregroundLayerName" value="ic_lock_off_foreground" />
-                                      <entry key="legacyIconShape" value="CIRCLE" />
-                                      <entry key="outputName" value="ic_lock_off_db" />
+                                      <entry key="foregroundImage" value="C:\Users\Hector\Downloads\mercedes-benz-9-logo-png-transparent.png" />
+                                      <entry key="outputName" value="ic_logo" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -89,7 +83,6 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="backgroundColor" value="f2f2f2" />
                                       <entry key="imageAsset" value="C:\Users\Hector\Downloads\icons8-email-send-96.png" />
                                       <entry key="outputName" value="send_cmd" />
                                     </map>

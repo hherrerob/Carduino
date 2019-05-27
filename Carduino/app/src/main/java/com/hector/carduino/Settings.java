@@ -139,7 +139,7 @@ public class Settings implements Serializable {
         this._notifCarParked = sharedPreferences.getBoolean("_notifCarParked", _notifCarParked);
         this._notifLowBattery = sharedPreferences.getBoolean("_notifLowBattery", _notifLowBattery);
         this._phoneVibeOn = sharedPreferences.getBoolean("_phoneVibeOn", _phoneVibeOn);
-        this._accelerometerOn = sharedPreferences.getBoolean("_speedometerOn", _accelerometerOn);
+        this._accelerometerOn = sharedPreferences.getBoolean("_accelerometerOn", _accelerometerOn);
         this._gyroscopeOn = sharedPreferences.getBoolean("_gyroscopeOn", _gyroscopeOn);
         this._usePhoneLoc = sharedPreferences.getBoolean("_usePhoneLoc", _usePhoneLoc);
         this._autoLightsPitch = sharedPreferences.getInt("_autoLightsPitch", _autoLightsPitch);

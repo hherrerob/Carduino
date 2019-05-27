@@ -1,15 +1,22 @@
 package com.hector.carduino;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -25,7 +32,9 @@ import eo.view.batterymeter.BatteryMeterView;
  * Contiene el acceso a todas las funcionalidades principales de la aplicación
  */
 public class MainActivity extends AppCompatActivity {
-    /** id Callback de settingsActivity */
+    /** ID del canal de notificaciones */
+    public static final String CHANNEL_ID = "1";
+    /** ID Callback de settingsActivity */
     public static final int NAMECHANGE_RESULT = 9;
 
     /** Botones de recargar y configurar */
@@ -76,6 +85,41 @@ public class MainActivity extends AppCompatActivity {
         startService(new Intent(this, BluetoothService.class));
         bindService(new Intent(this, BluetoothService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
+
+        createNotificationChannel();
+        notifyThis("Hola", "Hola");
+    }
+
+    public void notifyThis(String title, String message) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_logo_foreground)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText("Much longer text that cannot fit one line..."))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+        int notificationId = 1;
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(notificationId, builder.build());
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.app_name);
+            String description = getString(R.string.app_name);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     /**

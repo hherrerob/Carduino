@@ -21,6 +21,8 @@ public class Command {
     public static final char TURN_LEFT = 'U';
     /** Giro a la derecha */
     public static final char TURN_RIGHT = 'c';
+    /** Soltar volante */
+    public static final char RELEASE_SW = 'k';
     /** Cláxon */
     public static final char HONK = 'M';
     /** Ráfaga */

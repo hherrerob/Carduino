@@ -87,4 +87,10 @@
     <string name="controls_blinkers_hazzard">Emergencia</string>
     <string name="controls_car_locked">"Candado: "</string>
     <string name="controls_car_vent">"Ventilación: "</string>
+    <string name="drive_autoc_on">Deteción de choque activada</string>
+    <string name="drive_autoc_off">Deteción de choque desactivada</string>
+    <string name="drive_autol_on">Luces automáticas activadas</string>
+    <string name="drive_autol_off">Luces automáticas desactivadas</string>
+    <string name="drive_acc_on">Acelerómetro activado</string>
+    <string name="drive_acc_off">Acelerómetro desactivado</string>
 </resources>

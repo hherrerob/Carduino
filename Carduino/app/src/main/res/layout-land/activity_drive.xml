@@ -20,7 +20,7 @@
         android:textAllCaps="false"
         android:textColor="@android:color/white"
         android:textSize="30sp"
-        android:textStyle="bold|italic" />
+        android:textStyle="bold" />
 
     <LinearLayout
         android:id="@+id/DASHBOARD"
@@ -120,18 +120,6 @@
                 app:srcCompat="@mipmap/ic_brake_foreground" />
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/REFRESH"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="10dp"
-                android:clickable="true"
-                app:backgroundTint="@color/colorPrimary"
-                app:srcCompat="@android:drawable/ic_menu_rotate" />
-
-            <android.support.design.widget.FloatingActionButton
                 android:id="@+id/FLASH"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -166,7 +154,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:layout_margin="10dp"
+                android:layout_marginLeft="10dp"
                 android:rotation="270"
                 app:emptyColor="@color/colorPrimary"
                 app:filledColor="@color/blue"
@@ -185,7 +173,17 @@
                 android:layout_height="wrap_content"
                 android:rotation="0"
                 android:scaleType="centerCrop"
-                app:srcCompat="@drawable/volante" />
+                app:srcCompat="@drawable/sw_n" />
+
+            <io.feeeei.circleseekbar.CircleSeekBar
+                android:id="@+id/STEERING_SB"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:rotation="180"
+                app:wheel_max_process="360"
+                app:wheel_pointer_color="@android:color/transparent"
+                app:wheel_reached_color="@android:color/transparent"
+                app:wheel_unreached_color="@android:color/transparent" />
 
         </RelativeLayout>
 

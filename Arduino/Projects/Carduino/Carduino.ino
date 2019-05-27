@@ -1,13 +1,12 @@
 #include <TinyGPS++.h>
-#include <TinyGPS.h>
 #include <TimedAction.h>
 #include <AFMotor.h>
 #include <Servo.h>
 
 // GLOBALS
 char _MARCHA = 'P';
-boolean _LOCKED = true;
-int _VELOCIDAD = 1;
+boolean _LOCKED = true; // COCHE CANDADO: NO LEE COMANDOS
+int _VELOCIDAD = 1; // VELOCIDADES
 double _TEMPERATURE = 0; // SENSOR DE TEMPERATURA
 boolean _VENT = false; // VENTILACION ACTIVADA MANUALMENTE
 int _BATTERY_1 = 100; // PORCENTAJE DE BATERÍA DEL ARDUINO
@@ -22,22 +21,22 @@ boolean _PARAMETRIZE = false; // EL SIGUIENTE COMANDO RECIBIDO ES UN PARÁMETRO
 int LDRReading = 0; // SENSOR DE LUZ
 long duration = 0; // ULTRASONIC
 int distance = 0; // ULTRASONIC
-int BAT_1_MAX = 60; // MÁXIMO INPUT DE LA BATERÍA EN REPOSO
-int BAT_1_MIN = 12; // MÍNIMO INPUT DE LA BATERÍA EN REPOSO
-int BAT_2_MAX = 55; // MÁXIMO INPUT DE LA BATERÍA EN REPOSO
-int BAT_2_MIN = 12; // MÍNIMO INPUT DE LA BATERÍA EN REPOSO
+int BAT_1_MAX = 40; // MÁXIMO INPUT DE LA BATERÍA EN REPOSO
+int BAT_1_MIN = 20; // MÍNIMO INPUT DE LA BATERÍA EN REPOSO
+int BAT_2_MAX = 35; // MÁXIMO INPUT DE LA BATERÍA EN REPOSO
+int BAT_2_MIN = 20; // MÍNIMO INPUT DE LA BATERÍA EN REPOSO
 int PBV_1 = 0; // MÁXIMO REGISTRADO
 int PBV_2 = 0; // MÁXIMO REGISTRADO
 
 // SETTINGS
-boolean _autoLights = false; // ACTIVAR LUCES AUTOMATICAMENTE
+boolean _autoLights = true; // ACTIVAR LUCES AUTOMATICAMENTE
 int _lightsSensorPitch = 700; // A PARTIR DE
-boolean _autoStop = false; // PARAR EL VEHÍCULO SI DETECTA OBSTACULO
+boolean _autoStop = true; // PARAR EL VEHÍCULO SI DETECTA OBSTACULO
 int _stopSensorDistance = 10; // A PARTIR DE (ESCALABLE)
 boolean _autoVent = false; // ACTIVA LA VENTILACIÓN AUTOMATICAMENTE
-int _autoVentPitch = 25; // SI LA TEMPERATURA ESTA POR ENCIMA DE
+int _autoVentPitch = 24; // SI LA TEMPERATURA ESTA POR ENCIMA DE
 
-// PINS
+// PINES
 int const TLL = 44; // INTERMITENTE IZQUIERDO
 int const TLR = 42; // INTERMITENTE DERECHO
 int activeTurnLight = 0; // AUXILIAR DE INTERMITENTES
@@ -89,7 +88,7 @@ int command[] = {
     (int) motorSpeedHandler, (int) setLock, (int) blinker, (int) posLightsToggle, (int) buzzer, (int) setAutoVent, (int) NONE, (int) gearShift, // 2
     (int) motorSpeedHandler, (int) setLights, (int) blinker, (int) frontLightsToggle, (int) turn, (int) setVent, (int) NONE, (int) gearShift, // 3
     (int) motorSpeedHandler, (int) setLights, (int) blinker, (int) frontLightsToggle, (int) turn, (int) setVent, (int) NONE, (int) gearShift, // 4
-    (int) motorSpeedHandler, (int) setAutoStop, (int) emLight, (int) activateParametrize, (int) NONE, (int) NONE, (int) NONE, (int) NONE, // 5
+    (int) motorSpeedHandler, (int) setAutoStop, (int) emLight, (int) activateParametrize, (int) turn, (int) NONE, (int) NONE, (int) NONE, // 5
     (int) motorSpeedHandler, (int) setAutoStop, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, // 6
     (int) frontLightFlash, (int) defaultConfig, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, // 7
     (int) peakBattery, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE, (int) NONE  // 8
@@ -184,13 +183,13 @@ void setParameter(String param) {
   String setter = String(param[1]) + String(param[2]) + String(param[3]);
   switch(param[0]) {
     case 'H': _lightsSensorPitch = setter.toInt();
-    break;
+      break;
     case 'h': _stopSensorDistance = setter.toInt();
-    break;
+      break;
     case 'F': _autoVentPitch = setter.toInt();
-    break;
+      break;
     default: NONE();
-    break;
+      break;
   }
 
   String msg = "LSP[" + String(_lightsSensorPitch) + "] SSD[" + String(_stopSensorDistance) + "] VP[" + String(_autoVentPitch) + "]";
@@ -239,9 +238,9 @@ void allOff() {
 
 // CAMBIA LA CONFIGURACIÓN ACTUAL POR LOS VALORES POR DEFECTO
 void defaultConfig() {
-  _autoLights = false;
+  _autoLights = true;
   _lightsSensorPitch = 700;
-  _autoStop = false;
+  _autoStop = true;
   _stopSensorDistance = 10;
   _autoVent = false;
   _autoVentPitch = 24;
@@ -453,10 +452,12 @@ void longFrontLightFlash() {
 
 // GIRA
 void turn() {
-  if(cmd == 'U')
-    DirMotor.run(FORWARD);
-  else DirMotor.run(BACKWARD);
   DirMotor.setSpeed(255);
+  if(cmd == 'U')
+    DirMotor.run(BACKWARD);
+  else if(cmd == 'k')
+    DirMotor.setSpeed(0);
+  else DirMotor.run(FORWARD);
 }
 
 // DISMINUYE/AUMENTA LA _VELOCIDAD (RECUBRIMIENTO)
@@ -515,19 +516,15 @@ void fullBrake() {
 
 // INVIERTE EL SENTIDO DEL MOTOR LIGERAMENTE
 void brake() {
-  if(_MARCHA == 'D' or _MARCHA == 'R') {
     if(_MARCHA == 'D') {
       TracMotor.run(BACKWARD);
     } else TracMotor.run(FORWARD);
     
-    TracMotor.setSpeed(255);
     delay(100);
     
     if(_MARCHA == 'D') {
       TracMotor.run(FORWARD);
     } else TracMotor.run(BACKWARD);
-    TracMotor.setSpeed(255); // CAMBIAR
-  }
 }
 
 // COMPRUEBA LOS HILOS EN FUNCIONAMIENTO

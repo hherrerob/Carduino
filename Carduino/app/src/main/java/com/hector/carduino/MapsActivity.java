@@ -15,7 +15,6 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -142,8 +141,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             case REQUEST: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getLocation();
-                } else {
-                    Toast.makeText(this, getString(R.string.map_error_permission), Toast.LENGTH_LONG).show();
                 }
             }
         }

@@ -91,4 +91,10 @@
     <string name="controls_blinkers_none">None</string>
     <string name="controls_car_locked">Lock:</string>
     <string name="controls_car_vent">Vent:</string>
+    <string name="drive_autoc_on">Collision detection on</string>
+    <string name="drive_autoc_off">Collision detection off</string>
+    <string name="drive_autol_on">Auto lights on</string>
+    <string name="drive_autol_off">Auto lights Off</string>
+    <string name="drive_acc_on">Accelerometer On</string>
+    <string name="drive_acc_off">Accelerometer Off</string>
 </resources>

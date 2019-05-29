@@ -10,16 +10,20 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.Process;
 
+import java.util.concurrent.ConcurrentMap;
+
 /**
  * Maneja el servicio que conecta el dispositivo con el módulo Bluetooth de Arduino
  */
 public class BluetoothService extends Service {
     /** Caso del menú para comando único */
     public static final int SEND = 1;
-    /** Caso del menú para comando parametrizado */
+    /** Caso del menú para enviar todos comandos parametrizados */
     public static final int SEND_PARAM = 2;
     /** Caso del menú para reiniciar la conexión */
     public static final int RESTART = 3;
+    /** Caso del menú para enviar sólo la temperatura */
+    public static final int SEND_TEMP= 4;
 
     /** Looper del servicio */
     private Looper serviceLooper;
@@ -90,6 +94,16 @@ public class BluetoothService extends Service {
                         try {
                             connectThread.setConfig(settings);
                         } catch (InterruptedException e) { }
+                    break;
+                case SEND_TEMP:
+                        Settings s = (Settings) msg.obj;
+
+                        char cmd;
+                        if(s.is_autoVent())
+                            cmd = Command.AUTO_VENT_ON;
+                        else cmd = Command.AUTO_VENT_OFF;
+
+                        connectThread.sendParameter(s.get_autoVentTemp(), cmd);
                     break;
                 case RESTART:
                     connectThread.cancel();

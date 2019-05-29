@@ -26,6 +26,9 @@ import android.widget.Toast;
 
 import com.github.channguyen.rsv.RangeSliderView;
 import com.rm.rmswitch.RMSwitch;
+
+import org.json.JSONObject;
+
 import io.feeeei.circleseekbar.CircleSeekBar;
 
 /**
@@ -108,6 +111,13 @@ public class DriveActivity extends AppCompatActivity implements SensorEventListe
     /** AntiSpam en millis */
     private long lastTurn;
 
+    /** Flag: llamada a la API del tiempo hecha */
+    private boolean weatherUpdated;
+    /** Momento en el que se hizo la última llamada */
+    private long lastWeatherUpdate;
+    /** Descripción de la API */
+    private String weatherDescription;
+
     /** Comunicación con el servicio */
     private Messenger messageSender;
     /** Establecimiento de conexión con el servicio */
@@ -148,10 +158,57 @@ public class DriveActivity extends AppCompatActivity implements SensorEventListe
     }
 
     /**
+     * Decide si hacer o no la petición
+     */
+    public void getWeather() {
+        try {
+            if (!weatherUpdated || System.currentTimeMillis() - lastWeatherUpdate > 10000 ) {
+                weatherUpdated = true;
+                lastWeatherUpdate = System.currentTimeMillis();
+                JSONObject json = RemoteFetch.getJSON(DriveActivity.this, currentStatus.get_lat(), currentStatus.get_lon());
+                renderWeather(json);
+            }
+        } catch (NullPointerException e) {
+            sportModeIcon(frostSign, R.mipmap.ic_lane_unk_foreground, R.mipmap.ic_lane_unk_foreground);
+        }
+    }
+
+    /**
+     * Procesa una acción a partir de los datos recibidos de la API
+     * @param json(JSONObject) Datos recibidos de la API
+     */
+    public void renderWeather(JSONObject json) {
+        try {
+            int weatherCode =  json.getJSONArray("weather").getJSONObject(0).getInt("id");
+            weatherDescription = json.getJSONArray("weather").getJSONObject(0).getString("description");
+
+            int idOn, idOff;
+            if(200 <= weatherCode && weatherCode <= 321) {
+                idOff = R.mipmap.ic_lane_rain_foreground;
+                idOn = R.mipmap.ic_lane_rain_sport_foreground;
+            } else if(weatherCode == 800) {
+                idOff = R.mipmap.ic_lane_normal_foreground;
+                idOn = R.mipmap.ic_lane_normal_foreground;
+            } else if(600 <= weatherCode && weatherCode <= 622) {
+                idOff = R.mipmap.ic_lane_frost_foreground;
+                idOn = R.mipmap.ic_lane_frost_sport_foreground;
+            } else idOff = idOn = R.mipmap.ic_lane_unk_foreground;
+
+            sportModeIcon(frostSign, idOn, idOff);
+        }catch(Exception e){
+            sportModeIcon(frostSign, R.mipmap.ic_lane_unk_foreground, R.mipmap.ic_lane_unk_foreground);
+        }
+    }
+
+
+    /**
      * Instancia los componentes y recursos necesarios para la actividad
      * Establece los comando a enviar al efectuar los eventos
      */
     private void set() {
+        this.weatherDescription = "Unknown";
+        this.weatherUpdated = false;
+        this.lastWeatherUpdate = System.currentTimeMillis();
         this.antiSpam = new int[] {0, 0};
         this.lastCmdSpeed = ' ';
         this.lastCmdTurn = ' ';
@@ -323,6 +380,13 @@ public class DriveActivity extends AppCompatActivity implements SensorEventListe
         });
 
         this.frostSign = findViewById(R.id.FROST);
+        this.frostSign.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(DriveActivity.this, weatherDescription, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
         this.speedDisplay = findViewById(R.id.SPEED);
         this.speedDisplay.setText("0 km/h");
 
@@ -536,6 +600,8 @@ public class DriveActivity extends AppCompatActivity implements SensorEventListe
         this.currentStatus = status;
         this.isConnected = connected;
 
+        getWeather();
+
         if(status.is_locked())
             sportModeIcon(lock, R.mipmap.ic_sport_lock_foreground, R.mipmap.ic_lock_on_db_foreground);
         else lock.setImageResource(R.mipmap.ic_lock_off_db_foreground);
@@ -628,7 +694,7 @@ public class DriveActivity extends AppCompatActivity implements SensorEventListe
 
     /**
      * Ejecuta una acción dependiendo del ángulo del acelerómetro
-     * @param val(float) Ángulo de situación del teléfono
+     * @param val(float) Angulo de situación del teléfono
      */
     public void handleAcc(float val) {
         if(val < 0)
@@ -662,7 +728,7 @@ public class DriveActivity extends AppCompatActivity implements SensorEventListe
 
     /**
      * Ejecuta una acción dependiendo del ángulo del giroscópio
-     * @param angle(float) Ángulo de situación del teléfono
+     * @param angle(float) Angulo de situación del teléfono
      */
     public void handleTurn(float angle) {
         char cmd = ' ';

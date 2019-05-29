@@ -2,14 +2,14 @@ package com.hector.carduino;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Build;
-import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -26,6 +26,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.github.zagum.switchicon.SwitchIconView;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 import eo.view.batterymeter.BatteryMeterView;
 
 /**
@@ -51,6 +56,13 @@ public class MainActivity extends AppCompatActivity {
     private SwitchIconView lock, vent;
     /** Muestra el nombre del coche */
     private TextView carName;
+
+    /** Flags para comprobar que las notificaciones se envían una sola vez */
+    private boolean[] notificationFlags;
+    /** Manejador de las notificaciones */
+    private NotificationManagerCompat notificationManager;
+    /** ID de la notificación */
+    private int notificationId;
 
     /** Contadores para evitar spam(activaciones y desactivaciones muy seguidas) en los switches */
     private int[] antiSpam;
@@ -87,25 +99,110 @@ public class MainActivity extends AppCompatActivity {
                 Context.BIND_AUTO_CREATE);
 
         createNotificationChannel();
-        notifyThis("Hola", "Hola");
     }
 
-    public void notifyThis(String title, String message) {
+    /**
+     * Decide si lanzar o no una notificación
+     */
+    public void notificationHandler() {
+        Settings settings = new Settings();
+        settings.getPrefs(MainActivity.this);
+
+        if(settings.is_notifCarOn() &&  !notificationFlags[0] && !currentStatus.is_locked()) {
+            try {
+                notifyThis(getString(R.string.notification_car_unlocked),
+                        getString(R.string.notification_car_unlocked),
+                        lastParked(currentStatus.get_lat(), currentStatus.get_lon()));
+            } catch (IOException e) { }
+            notificationFlags[0] = true;
+        }
+
+        if(settings.is_notifCarParked() &&  !notificationFlags[1] && currentStatus.get_marcha() == 'P') {
+            try {
+                notifyThis(getString(R.string.notification_car_parked),
+                        getString(R.string.notification_car_parked),
+                        lastParked(currentStatus.get_lat(), currentStatus.get_lon()));
+            } catch (IOException e) { }
+            notificationFlags[1] = true;
+        }
+
+        if(settings.is_notifLowBattery() &&  !notificationFlags[2] && currentStatus.get_battery_1() < 20) {
+            notifyThis(getString(R.string.notification_battery) + currentStatus.get_battery_1() + "%",
+                    getString(R.string.notification_battery) + currentStatus.get_battery_1() + "%",
+                    getString(R.string.notification_battery_low_arduino));
+            notificationFlags[2] = true;
+        }
+
+        if(settings.is_notifLowBattery() &&  !notificationFlags[3] && currentStatus.get_battery_2() < 20) {
+            notifyThis(getString(R.string.notification_battery) + currentStatus.get_battery_2() + "%",
+                    getString(R.string.notification_battery) + currentStatus.get_battery_2() + "%",
+                    getString(R.string.notification_battery_low_motor));
+            notificationFlags[3] = true;
+        }
+
+        notificationReset();
+    }
+
+    /**
+     * Comprueba si es necesario resetear las notificaciones
+     * para que puedan ser enviadas de nuevo
+     */
+    public void notificationReset() {
+        if(currentStatus.is_locked())
+            notificationFlags[0] = false;
+
+        if(currentStatus.get_marcha() != 'P')
+            notificationFlags[1] = false;
+    }
+
+    /**
+     * Obtiene la última localización del coche
+     * @param lat(double) Última latitud obtenida
+     * @param lon(double) Última longitud obtenida
+     * @return (String) Dirección
+     * @throws IOException
+     */
+    public String lastParked(double lat, double lon) throws IOException {
+
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(this, Locale.getDefault());
+
+        addresses = geocoder.getFromLocation(lat, lon, 1);
+        try {
+            String address = addresses.get(0).getAddressLine(0).split(",")[0];
+            String city = addresses.get(0).getLocality();
+            String knownName = addresses.get(0).getFeatureName();
+
+            return address + ", " + knownName + ", " + city;
+        } catch (IndexOutOfBoundsException e) {
+            return getString(R.string.notification_no_sats);
+        }
+    }
+
+    /**
+     * Crea una notificación y la muestra
+     * @param title(String) Título de la notificación
+     * @param message(String) Texto largo
+     * @param longerMessage(String) Más texto
+     */
+    public void notifyThis(String title, String message, String longerMessage) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_logo_foreground)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText("Much longer text that cannot fit one line..."))
+                        .bigText(longerMessage))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-
-        int notificationId = 1;
+        this.notificationId++;
         // notificationId is a unique int for each notification that you must define
         notificationManager.notify(notificationId, builder.build());
     }
 
+    /**
+     * Crea un canal para enviar las notificaciones
+     */
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -129,6 +226,9 @@ public class MainActivity extends AppCompatActivity {
     private void set() {
         this.antiSpam = new int[] {0, 0};
         this._isConnected = false;
+        this.notificationManager = NotificationManagerCompat.from(this);
+        this.notificationId = 0;
+        this.notificationFlags = new boolean[] {false, true, false, false};
 
         this.lock = findViewById(R.id.LOCK);
         this.lock.setIconEnabled(true);
@@ -305,6 +405,7 @@ public class MainActivity extends AppCompatActivity {
     public void dashboardHandler(final Status currentStatus, boolean connected) {
         if(connected) {
             this.currentStatus = currentStatus;
+            notificationHandler();
             this.isConnected.setBackgroundResource(R.drawable.circle_green);
             this._isConnected = true;
             this.arduinoBatteryIndicator.setChargeLevel(currentStatus.get_battery_1());
@@ -324,8 +425,6 @@ public class MainActivity extends AppCompatActivity {
                 check(vent, currentStatus.is_vent(), 1);
             }
         });
-
-        //TODO: COMPLETAR
     }
 
     /**
@@ -335,7 +434,7 @@ public class MainActivity extends AppCompatActivity {
      * Debe hacer dos intentos para cambiarlo antes de que sea posible cambiarlo
      * @param switchIcon(SwitchIconView) Vista del switch
      * @param value(Boolean) Valor esperado
-     * @param index(int) Índice en el array de antiSpam
+     * @param index(int) Indice en el array de antiSpam
      */
     public void check(SwitchIconView switchIcon, boolean value, int index) {
         if(switchIcon.isIconEnabled() != value) {

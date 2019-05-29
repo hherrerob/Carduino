@@ -29,7 +29,7 @@
     <string name="settings_gyroscope">Giroscopio</string>
     <string name="settings_made_by">Hecho por</string>
     <string name="settings_last_update">Última actualización</string>
-    <string name="settings_on_desc">Recibe una notification cada vez que se enciende tu coche</string>
+    <string name="settings_on_desc">Recibe una notification cada vez que se desbloquea tu coche</string>
     <string name="settings_parked_desc">Recibe una notificación cada vez que aparques</string>
     <string name="settings_low_battery_desc">Recibe una notificación cuando se empiece a acabar la batería</string>
     <string name="settings_vibration_desc">Hacer que el dispositivo vibre</string>
@@ -93,4 +93,10 @@
     <string name="drive_autol_off">Luces automáticas desactivadas</string>
     <string name="drive_acc_on">Acelerómetro activado</string>
     <string name="drive_acc_off">Acelerómetro desactivado</string>
+    <string name="notification_car_unlocked">Tu coche ha sido desbloqueado</string>
+    <string name="notification_car_parked">Tu coche ha sido aparcado</string>
+    <string name="notification_battery_low_motor">La batería del motor se está agotando</string>
+    <string name="notification_battery_low_arduino">La batería de Arduino se está agotando</string>
+    <string name="notification_battery">"Batería al "</string>
+    <string name="notification_no_sats">Sin conexión el satélite</string>
 </resources>

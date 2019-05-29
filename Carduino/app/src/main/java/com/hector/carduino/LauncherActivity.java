@@ -7,6 +7,11 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+/**
+ * Actividad de lanzamiento
+ * Activa el Bluetooth si no está activado,
+ * si está lanza mainActivity
+ */
 public class LauncherActivity extends AppCompatActivity {
 
     private BluetoothAdapter mBluetoothAdapter;
@@ -21,6 +26,11 @@ public class LauncherActivity extends AppCompatActivity {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
+    /**
+     * Sale de la actividad
+     * @param time(long) Tiempo de retardo
+     * @param interval(long) Cada cuando hacer una llamada
+     */
     public void exit(long time, long interval) {
         this.cdt = new CountDownTimer(time, interval) {
             @Override

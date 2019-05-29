@@ -1,7 +1,8 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="title_activity_loadscreen">loadscreenActivity</string>
     <string name="dummy_button" translatable="false">Dummy Button</string>
+    <string name="weather_api_key" translatable="false" tools:ignore="ExtraTranslation">5f1e30c17c10fe0ffa25a93452225b33</string>
     <string name="dummy_content" translatable="false">DUMMY\nCONTENT</string>
     <string name="option_location">Location</string>
     <string name="app_name">Carduino</string>
@@ -37,7 +38,7 @@
     <string name="settings_info">Information</string>
     <string name="settings_made_by">Made by</string>
     <string name="settings_last_update">Last update</string>
-    <string name="settings_on_desc">Recieve a notification whenever your car is turned on</string>
+    <string name="settings_on_desc">Recieve a notification whenever your car is unlocked</string>
     <string name="settings_parked_desc">Recieve a notification whenever your car gets parked</string>
     <string name="settings_low_battery_desc">Recieve a notification when your car starts running out of battery</string>
     <string name="settings_vibration_desc">Make the device vibrate</string>
@@ -97,4 +98,10 @@
     <string name="drive_autol_off">Auto lights Off</string>
     <string name="drive_acc_on">Accelerometer On</string>
     <string name="drive_acc_off">Accelerometer Off</string>
+    <string name="notification_battery_low_arduino">Arduino\'s battery is running out</string>
+    <string name="notification_battery_low_motor">Motor\'s battery is running out</string>
+    <string name="notification_car_parked">Your car has been parked</string>
+    <string name="notification_car_unlocked">Your car has been unlocked</string>
+    <string name="notification_battery">"Battery at "</string>
+    <string name="notification_no_sats">No connection with the satellite</string>
 </resources>

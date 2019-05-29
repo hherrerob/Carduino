@@ -59,7 +59,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="scalingPercent" value="150" />
+                                                <entry key="scalingPercent" value="88" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
@@ -70,8 +70,10 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="foregroundImage" value="C:\Users\Hector\Downloads\mercedes-benz-9-logo-png-transparent.png" />
-                                      <entry key="outputName" value="ic_logo" />
+                                      <entry key="backgroundLayerName" value="ic_lane_background" />
+                                      <entry key="foregroundImage" value="C:\Users\Hector\Desktop\lane_unknown.png" />
+                                      <entry key="foregroundLayerName" value="ic_lane_unk_foreground" />
+                                      <entry key="outputName" value="ic_lane_unk_normal" />
                                     </map>
                                   </option>
                                 </PersistentState>

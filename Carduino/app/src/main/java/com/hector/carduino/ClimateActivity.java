@@ -1,5 +1,13 @@
 package com.hector.carduino;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -38,6 +46,21 @@ public class ClimateActivity extends AppCompatActivity {
 
     /** Última configuración guardada*/
     private Settings settings;
+    /** Hilo que va actualizando el status y efectúa llamadas al método actualizador */
+    private FeedbackTracker feedbackTracker;
+    /** Comunicación con el servicio */
+    private Messenger messageSender;
+    /** Establecimiento de conexión con el servicio */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            messageSender = new Messenger(service);
+            feedbackTracker = new FeedbackTracker(messageSender, ClimateActivity.this, FeedbackTracker.CLIMATE_ACTIVITY);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) { }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +69,8 @@ public class ClimateActivity extends AppCompatActivity {
         this.settings = new Settings();
         this.settings.getPrefs(this);
         set();
+        bindService(new Intent(this, BluetoothService.class), serviceConnection,
+                Context.BIND_AUTO_CREATE);
     }
 
     /**
@@ -65,10 +90,32 @@ public class ClimateActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 rotator.on = !rotator.on;
-                if(rotator.on)
+                Message msg;
+
+                if(rotator.on) {
                     tempToggler.setText(R.string.climate_on);
-                else tempToggler.setText(R.string.climate_off);
-                //TODO: Enviar comando
+                    msg = Message.obtain(null, BluetoothService.SEND, Command.AUTO_VENT_ON);
+                } else {
+                    tempToggler.setText(R.string.climate_off);
+                    msg = Message.obtain(null, BluetoothService.SEND, Command.AUTO_VENT_ON);
+                }
+
+                try {
+                    messageSender.send(msg);
+                } catch (RemoteException e) { }
+
+
+                settings.set_autoVent(rotator.on);
+                settings.set_autoVentTemp(desiredTemp);
+                settings.savePrefs(ClimateActivity.this);
+
+                if(rotator.on) {
+                    msg = Message.obtain(null, BluetoothService.SEND_PARAM, settings);
+                    try {
+                        messageSender.send(msg);
+                    } catch (RemoteException e) {
+                    }
+                }
             }
         });
 
@@ -108,12 +155,23 @@ public class ClimateActivity extends AppCompatActivity {
         this.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                settings.set_autoVent(rotator.on);
-                settings.set_autoVentTemp(desiredTemp);
-                settings.savePrefs(ClimateActivity.this);
                 ClimateActivity.this.finish();
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        settings.set_autoVent(rotator.on);
+        settings.set_autoVentTemp(desiredTemp);
+        settings.savePrefs(ClimateActivity.this);
+
+        Message msg = Message.obtain(null, BluetoothService.SEND_TEMP, settings);
+        try {
+            messageSender.send(msg);
+        } catch (RemoteException e) { }
+
+        super.onPause();
     }
 
     /**

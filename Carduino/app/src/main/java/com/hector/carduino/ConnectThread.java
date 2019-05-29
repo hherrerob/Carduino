@@ -96,9 +96,13 @@ public class ConnectThread extends Thread {
         if(settings.is_useDefault())
             send(Command.USE_DEFAULT_CONFIG);
         else {
-            toParam(settings.is_autoLights(), Command.AUTO_LIGHTS_ON, Command.AUTO_LIGHTS_OFF, settings.get_autoLightsPitch());
-            toParam(settings.is_autoStop(), Command.AUTO_STOP_ON, Command.AUTO_STOP_OFF, settings.get_autoStopDistance());
-            toParam(settings.is_autoVent(), Command.AUTO_VENT_ON, Command.AUTO_VENT_OFF, settings.get_autoVentTemp());
+            synchronized (this) {
+                toParam(settings.is_autoLights(), Command.AUTO_LIGHTS_ON, Command.AUTO_LIGHTS_OFF, settings.get_autoLightsPitch());
+                Thread.sleep(1500);
+                toParam(settings.is_autoStop(), Command.AUTO_STOP_ON, Command.AUTO_STOP_OFF, settings.get_autoStopDistance());
+                Thread.sleep(1500);
+                toParam(settings.is_autoVent(), Command.AUTO_VENT_ON, Command.AUTO_VENT_OFF, settings.get_autoVentTemp());
+            }
         }
     }
 
@@ -111,13 +115,10 @@ public class ConnectThread extends Thread {
      */
     public void toParam(boolean b, char cmdTrue, char cmdFalse, int value) throws InterruptedException {
         if(b) {
-            send(cmdTrue);
-            Thread.sleep(100);
             sendParameter(value, cmdTrue);
         } else {
-            send(cmdFalse);
+            sendParameter(value, cmdFalse);
         }
-        Thread.sleep(300);
     }
 
     /**

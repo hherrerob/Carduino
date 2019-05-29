@@ -78,9 +78,6 @@ public class SettingsActivity extends AppCompatActivity {
         this.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                gatherSettings();
-                settings.savePrefs(SettingsActivity.this);
-
                 Intent returnIntent = new Intent();
                 SettingsActivity.this.setResult(RESULT_OK, returnIntent);
                 SettingsActivity.this.finish();
@@ -127,7 +124,7 @@ public class SettingsActivity extends AppCompatActivity {
         this.switchSettings[9].setChecked(settings.is_usePhoneLoc());
 
         this.sbPitch = findViewById(R.id.SB_PITCH);
-        this.sbPitch.setProgress(settings.get_autoLightsPitch() -100);
+        this.sbPitch.setProgress(settings.get_autoLightsPitch());
         this.sbPitch.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -187,5 +184,12 @@ public class SettingsActivity extends AppCompatActivity {
         this.settings.set_autoLightsPitch(this.sbPitch.getProgress() +10);
         this.settings.set_autoStopDistance(this.sbDistance.getProgress() +100);
         this.settings.set_carName(this.carName.getText().toString());
+    }
+
+    @Override
+    protected void onPause() {
+        gatherSettings();
+        settings.savePrefs(SettingsActivity.this);
+        super.onPause();
     }
 }

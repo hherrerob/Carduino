@@ -17,6 +17,8 @@ class FeedbackTracker extends Thread {
     public static final int CONTROLS_ACTIVITY = 2;
     /** Contruído desde driveActivity */
     public static final int DRIVE_ACTIVITY = 3;
+    /** Contruído desde climateActivity */
+    public static final int CLIMATE_ACTIVITY = 4;
 
     /** Estado actual del vehículo */
     public com.hector.carduino.Status currentStatus;
@@ -26,6 +28,8 @@ class FeedbackTracker extends Thread {
     public Context context;
     /** Tipo actividad desde donde se ha construído */
     public int type;
+    /** Flag: si ha logrado una conexión con éxito */
+    private boolean connected;
 
     /**
      * Constructor sobrecargado
@@ -35,6 +39,7 @@ class FeedbackTracker extends Thread {
      */
     public FeedbackTracker(Messenger messageSender, Context context, int type) {
         super();
+        this.connected = false;
         this.currentStatus = new com.hector.carduino.Status();
         this.messageSender = messageSender;
         this.context = context;
@@ -62,8 +67,8 @@ class FeedbackTracker extends Thread {
     public void publishProgress() {
         try {
             currentStatus = currentStatus.readFromFile(context);
-            Boolean connected = false;
-            if(currentStatus == null || System.currentTimeMillis() - currentStatus.getLastStatus() > 4000) {
+
+            if(currentStatus == null || (System.currentTimeMillis() - currentStatus.getLastStatus() > 4000  && !connected)) {
                 Thread.sleep(1000);
                 refresh();
                 Thread.sleep(2000);
@@ -75,6 +80,10 @@ class FeedbackTracker extends Thread {
         } catch (InterruptedException e) {
         } catch (IOException e) {
         } catch (ClassNotFoundException e) {}
+
+        if(System.currentTimeMillis() - currentStatus.getLastStatus() > 10000 && connected) {
+            connected = false;
+        }
     }
 
     /**

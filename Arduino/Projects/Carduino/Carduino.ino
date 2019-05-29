@@ -69,6 +69,7 @@ boolean emStopped = false; // PARADA DE EMERGENCIA
 boolean turnLightsToggler = false; // INTERMITENTES
 boolean emLightsToggler = false; // LUZ DE EMERGENCIA
 boolean autoStop = false; // PARADA AUTOMÁTICA
+boolean ventOffAuto = false; // APAGA AUTOMÁTICAMENTE LA VENTILACIÓN
 
 // THREADS
 TimedAction turnLightsThread = TimedAction(300, turnLightsBlinker); // INTERMITENTES
@@ -77,7 +78,7 @@ TimedAction tempThread = TimedAction(2000, getTemp); // COMPROBAR TEMPERATURA
 TimedAction autoStopThread = TimedAction(100, crashDetect); // DETECCIÓN DE CHOQUE
 TimedAction autoLightsThread = TimedAction(500, autoLights); // LUCES AUTOMATICAS
 TimedAction dataTrackThread = TimedAction(230, sendData); // ENVIAR DATOS
-TimedAction autoVentThread = TimedAction(2000, autoVent); // ENVIAR DATOS
+TimedAction autoVentThread = TimedAction(1000, autoVent); // ENVIAR DATOS
 TimedAction findBatteryThread = TimedAction(60000, findBattery); // COMPROBAR ESTADO DE BATERÍAS
 TimedAction peakBatteryThread = TimedAction(1000, peakBattery); // COMPROBAR ESTADO DE BATERÍAS
 
@@ -131,7 +132,8 @@ void setup() {
   pinMode(BLR, OUTPUT);
   pinMode(TRIGGER, OUTPUT);
   pinMode(ECHO, INPUT);
-
+  defaultConfig();
+  
   // ENCENDER MOTORES
   DirMotor.run(RELEASE);
   TracMotor.run(RELEASE);
@@ -175,7 +177,7 @@ void sendData() {
   data = "{" + data + "};";
   
   Serial1.println(data);
-  Serial.println(data);
+  //Serial.println(data);
 }
 
 // ESTABLECE EL VALOR DE EL RESPECTIVO PARÁMETRO
@@ -183,20 +185,31 @@ void setParameter(String param) {
   String setter = String(param[1]) + String(param[2]) + String(param[3]);
   switch(param[0]) {
     case 'H': _lightsSensorPitch = setter.toInt();
+              _autoLights = true;
+      break;
+    case 'Z': _lightsSensorPitch = setter.toInt();
+              _autoLights = false;
       break;
     case 'h': _stopSensorDistance = setter.toInt();
+              _autoStop = true;
+      break;
+    case 'p': _stopSensorDistance = setter.toInt();
+              _autoStop = false;
       break;
     case 'F': _autoVentPitch = setter.toInt();
+              _autoVent = true;
+      break;
+    case 'X': _autoVentPitch = setter.toInt();
+              _autoVent = false;
       break;
     default: NONE();
       break;
   }
 
-  String msg = "LSP[" + String(_lightsSensorPitch) + "] SSD[" + String(_stopSensorDistance) + "] VP[" + String(_autoVentPitch) + "]";
-  Serial.println(msg);
-
   cmd = '.';
   _PARAMETRIZE = false;
+  sendData();
+  sendData();
 }
 
 // ACTIVA EL MODO DE PARAMETRIZAJE
@@ -262,16 +275,27 @@ void setAutoStop() {
 
 // ACTIVA/DESACTIVA LA VENTILACION AUTOMÁTICA
 void setAutoVent() {
-  if(cmd == 'F')
+  if(cmd == 'F') {
     _autoVent = true;
-  else _autoVent = false;
+    ventOffAuto = true;
+  } else {
+    _autoVent = false;
+    ventOffAuto = false;
+  }
 }
 
 // ACTIVA/DESACTIVA LA VENTILACION
 void setVent() {
-  if(cmd == 'V')
+  if(cmd == 'V') {
     _VENT = true;
-  else _VENT = false;
+    ventOffAuto = false;
+  } else {
+    _autoVent = false;
+    ventOffAuto = true;
+    _VENT = false;
+  }
+
+  vent();
 }
 
 // CAMBIO DE VELOCIDAD
@@ -643,13 +667,20 @@ void getTemp() {
 
 // ACTIVA/DESACTIVA LA VENTILACIÓN AUTOMATICAMNTE
 void autoVent() {
-  if((_TEMPERATURE > _autoVentPitch and _autoVent) or _VENT) {
-    _VENT = true;
-    VentMotor.setSpeed(123);
-  } else {
+  if((_TEMPERATURE > _autoVentPitch and _autoVent)) {
+      _VENT = true;
+      VentMotor.setSpeed(123);
+  } else if(ventOffAuto) {
     VentMotor.setSpeed(0);
     _VENT = false;
   }
+}
+
+// ACTIVA/DESACTIVA LA VENTILACIÓN AUTOMATICAMNTE
+void vent() {
+  if(_VENT)
+      VentMotor.setSpeed(123);
+  else VentMotor.setSpeed(0);
 }
 
 // COMANDO SIN USAR

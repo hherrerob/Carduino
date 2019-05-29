@@ -52,7 +52,7 @@
             android:layout_alignParentTop="true"
             android:layout_weight="1"
             android:clickable="true"
-            app:srcCompat="@mipmap/ic_frost_off_foreground" />
+            app:srcCompat="@mipmap/ic_lane_normal_foreground" />
 
         <ImageView
             android:id="@+id/EMERGENCY_LIGHT"

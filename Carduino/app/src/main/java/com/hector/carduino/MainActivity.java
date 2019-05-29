@@ -228,14 +228,14 @@ public class MainActivity extends AppCompatActivity {
         this._isConnected = false;
         this.notificationManager = NotificationManagerCompat.from(this);
         this.notificationId = 0;
-        this.notificationFlags = new boolean[] {false, true, false, false};
+        this.notificationFlags = new boolean[] {false, false, false, false};
 
         this.lock = findViewById(R.id.LOCK);
         this.lock.setIconEnabled(true);
         this.lock.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lock.setIconEnabled(!lock.isIconEnabled()); //TODO: Cambiar (?)
+                lock.setIconEnabled(!lock.isIconEnabled());
                 Message msg;
                 if(lock.isIconEnabled())
                     msg = Message.obtain(null, BluetoothService.SEND, Command.LOCK);

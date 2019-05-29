@@ -192,7 +192,7 @@ public class DriveActivity extends AppCompatActivity implements SensorEventListe
             } else if(600 <= weatherCode && weatherCode <= 622) {
                 idOff = R.mipmap.ic_lane_frost_foreground;
                 idOn = R.mipmap.ic_lane_frost_sport_foreground;
-            } else idOff = idOn = R.mipmap.ic_lane_unk_foreground;
+            } else idOff = idOn = R.mipmap.ic_lane_normal_foreground;
 
             sportModeIcon(frostSign, idOn, idOff);
         }catch(Exception e){

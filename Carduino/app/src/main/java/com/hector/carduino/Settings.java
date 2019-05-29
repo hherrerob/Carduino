@@ -16,7 +16,7 @@ public class Settings implements Serializable {
                     _autoVent, // Ventilación automática
                     _notifCarOn, // Notificar encendido del vehículo
                     _notifCarParked, // Notificar coche estacionado
-                    _notifLowBattery, // Notificar batería baja #TODO: WiP
+                    _notifLowBattery, // Notificar batería baja
                     _phoneVibeOn, // Activar vibración
                     _accelerometerOn, // Acelerar inclinando el teléfono
                     _gyroscopeOn, // Girar moviendo el teléfono

@@ -2,6 +2,7 @@ package com.hector.carduino;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
@@ -9,6 +10,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -116,7 +118,7 @@ public class ControlsActivity extends AppCompatActivity {
         this.listCommands.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: LISTA DE COMANDOS
+                showAlert(new Command().toString(), ControlsActivity.this);
             }
         });
 
@@ -153,6 +155,24 @@ public class ControlsActivity extends AppCompatActivity {
             findViewById(R.id.TEMP),
             findViewById(R.id.DTF)
         };
+    }
+
+    /**
+     * Crea una alerta con los comandos
+     * @param message(String) Los comandos
+     * @param con(Context) Actividad desde donde se llama al método
+     */
+    public static void showAlert(String message, Context con) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(con);
+        dialog.setMessage(message);
+        dialog.setPositiveButton(" OK ", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+
+            }
+        });
+        dialog.show();
+
     }
 
     /**
